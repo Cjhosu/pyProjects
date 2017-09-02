@@ -77,7 +77,7 @@ WSGI_APPLICATION = 'locallibrary.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'polls',
+        'NAME': 'library',
         'USER': 'choward',
         'PASSWORD': 'Sardis498',
         'HOST': '127.0.0.1',
