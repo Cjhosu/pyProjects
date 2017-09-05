@@ -45,7 +45,7 @@ class Item_status(models.Model):
     loaned_to = models.IntegerField(default=None, blank=True, null=True)
     loaned_at = models.DateTimeField(default=None, blank=True, null=True)
     due_back = models.DateTimeField(default=None, blank=True, null=True)
-    def __str__(self):
+    def __time__(self):
      return self.loaned_at
 
 
