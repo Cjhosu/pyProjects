@@ -8,12 +8,12 @@
 
       {% for comic in comic_list %}
       <li>
-        <a href="{{ comic.get_absolute_url }}">{{ comic.series }}</a> ({{book.number}})
+        <a href="{{ comic.get_absolute_url }}">{{ comic.series }} {{comic.number}}</a> 
       </li>
       {% endfor %}
 
     </ul>
     {% else %}
       <p>There are no comics in the library.</p>
-    {% endif %}*******
+    {% endif %}
 {% endblock %}
