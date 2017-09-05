@@ -38,7 +38,7 @@ class Comic(models.Model):
     year = models.CharField(max_length=4)
     month = models.CharField(max_length=3)
     def __str__(self):
-      return (self.series,self.number)
+      return (self.series)
 
 class Item_status(models.Model):
     item = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True)
