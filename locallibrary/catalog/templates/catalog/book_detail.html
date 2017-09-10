@@ -1,13 +1,19 @@
 {% extends "base_generic.html" %}
-
+{% load static %}
 {% block content %}
-  <h1>Title: {{ book.title }}</h1>
+  <h1>{{ book.title }}</h1>
 
   <p><strong>Author:</strong> <a href="">{{ book.author_first }}, {{book.author_last}}</a></p> <!-- author detail link not yet defined -->
-  <p><strong>Summary:</strong> {{ book.publisher }} Copywrite {{book.year}}</p>
+  <p><strong>Copywrite:</strong> {{ book.publisher }} {{book.year}}</p>
   <p><strong>ISBN:</strong> {{ book.isbn }}</p> 
   <div style="margin-left:20px;margin-top:20px">
-    <h4>Copies</h4>
+  <div style="margin-left:20px;margin-top:20px">
+ <hr>
+  <h4>Summary:</h4>
+    <p>{{book.description|linebreaks}}</p>
+  </div>
+  <hr>
+  <h3>Copies</h3>
 
    {% for copy in book.item.item_status_set.all %}
     <hr>

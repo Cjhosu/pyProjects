@@ -26,9 +26,11 @@ class Book(models.Model):
     isbn = models.CharField(max_length=15)
     publisher = models.CharField(max_length=30)
     year = models.CharField(max_length=4)
+    description = models.TextField(default=None, blank=True, null=True)
     def __str__(self):
       return self.title
-
+    def item_book(self):
+      return self.item
 class Comic(models.Model):
     item = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True)
     publisher = models.CharField(max_length=30)
@@ -37,6 +39,7 @@ class Comic(models.Model):
     number = models.IntegerField(default=None, blank=True, null=True)
     year = models.CharField(max_length=4)
     month = models.CharField(max_length=3)
+    description = models.CharField(max_length=500, default=None, blank=True, null=True)
     def __str__(self):
       return (self.series)
 
