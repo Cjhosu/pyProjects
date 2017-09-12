@@ -26,3 +26,20 @@ class ComicListView(generic.ListView):
 
 class BookDetailView(generic.DetailView):
     model = Book
+
+
+
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+class LoanedBooksByUserListView(LoginRequiredMixin,generic.ListView):
+    """
+    Generic class-based view listing books on loan to current user. 
+    """
+    model = Item_status
+    template_name ='catalog/item_status_list_borrowed_user.html'
+    paginate_by = 10
+
+    def get_queryset(self):
+        return Item_status.objects.filter(borrower=self.request.user).order_by('due_back')
+
+
