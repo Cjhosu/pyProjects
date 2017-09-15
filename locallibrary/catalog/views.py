@@ -3,6 +3,8 @@ from django.shortcuts import render
 # Create your views here.
 from .models import Item, Item_type, Book, Comic, Item_status
 from django.views import generic
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import F
 
 def index(request):
     num_books=Book.objects.all().count()
@@ -17,24 +19,20 @@ def index(request):
 )
 
 
-class BookListView(generic.ListView):
+class BookListView(LoginRequiredMixin,generic.ListView):
     model = Book
     paginate_by = 10
 
-class ComicListView(generic.ListView):
+class ComicListView(LoginRequiredMixin,generic.ListView):
     model = Comic
 
-class BookDetailView(generic.DetailView):
+class BookDetailView(LoginRequiredMixin,generic.DetailView):
     model = Book
 
 
 
-from django.contrib.auth.mixins import LoginRequiredMixin
 
-class LoanedBooksByUserListView(LoginRequiredMixin,generic.ListView):
-    """
-    Generic class-based view listing books on loan to current user. 
-    """
+class LoanedItemsByUserListView(LoginRequiredMixin,generic.ListView):
     model = Item_status
     template_name ='catalog/item_status_list_borrowed_user.html'
     paginate_by = 10
@@ -42,4 +40,10 @@ class LoanedBooksByUserListView(LoginRequiredMixin,generic.ListView):
     def get_queryset(self):
         return Item_status.objects.filter(borrower=self.request.user).order_by('due_back')
 
+    def get_context_data(self, **kwargs):
+        context = super(LoanedItemsByUserListView, self).get_context_data(**kwargs)
+        context['Owned_list'] = Item.objects.filter(owned_by=self.request.user, item_type = 1)
+        context['Loaned_list'] = Item_status.objects.filter(item__owned_by=self.request.user).exclude(borrower=self.request.user).exclude(borrower__isnull=True)
+        context['Other_list'] = Item_status.objects.filter(item__owned_by=self.request.user).exclude(borrower=self.request.user).filter(borrower__isnull=True)
+        return context
 

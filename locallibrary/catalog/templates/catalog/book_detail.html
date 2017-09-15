@@ -17,8 +17,8 @@
 
    {% for copy in book.item.item_status_set.all %}
     <hr>
-    <p class="{% if copy.due_back == null %}text-success{% elif copy.due_back != null %}text-danger{% else %}text-warning{% endif %}">{{ copy.get_due_back_display }}</p>
-    {% if copy.due_back != null %}<p><strong>Due to be returned:{{copy.due_back}}{% else %}There is a copy available!</strong></p>{% endif %}
+    <p class="{% if copy.due_back == null %}text-success{% elif copy.due_back != null %}text-danger{% else %}text-warning{% endif %}">This book is currently on loan</p>
+    {% if copy.due_back != null %}<p><strong>On loan to: {{copy.borrower}}{% else %}There is a copy available!</strong></p>{% endif %}
     {% endfor %}
   </div>
 {% endblock %}
