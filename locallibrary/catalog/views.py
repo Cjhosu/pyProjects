@@ -1,10 +1,12 @@
 from django.shortcuts import render
+from .forms import AddBookForm
 
 # Create your views here.
 from .models import Item, Item_type, Book, Comic, Item_status
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F
+
 
 def index(request):
     num_books=Book.objects.all().count()
@@ -23,13 +25,13 @@ class BookListView(LoginRequiredMixin,generic.ListView):
     model = Book
     paginate_by = 10
 
+
 class ComicListView(LoginRequiredMixin,generic.ListView):
     model = Comic
 
+
 class BookDetailView(LoginRequiredMixin,generic.DetailView):
     model = Book
-
-
 
 
 class LoanedItemsByUserListView(LoginRequiredMixin,generic.ListView):
@@ -46,4 +48,24 @@ class LoanedItemsByUserListView(LoginRequiredMixin,generic.ListView):
         context['Loaned_list'] = Item_status.objects.filter(item__owned_by=self.request.user).exclude(borrower=self.request.user).exclude(borrower__isnull=True)
         context['Other_list'] = Item_status.objects.filter(item__owned_by=self.request.user).exclude(borrower=self.request.user).filter(borrower__isnull=True)
         return context
+
+
+def AddNewBook(request):
+    if request.POST:
+        form = AddBookForm(request.POST)
+        if form.is_valid():
+            additem= Item()
+            additem.item_name= form.cleaned_data['item_name']
+            return HttpResponseRedirect('/thanks/')
+    else:
+        form = AddBookForm()
+    return render(request, 'add_book.html', {'form': form})
+
+
+
+
+
+
+
+
 
