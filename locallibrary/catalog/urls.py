@@ -1,5 +1,5 @@
 from django.conf.urls import url
-
+from .forms import AddBookForm
 from . import views
 
 urlpatterns = [
@@ -8,5 +8,5 @@ urlpatterns = [
     url(r'comics/$', views.ComicListView.as_view(), name = 'comics'),
     url(r'^books/(?P<pk>\d+)$', views.BookDetailView.as_view(), name='books-detail'),
     url(r'^mybooks/$', views.LoanedItemsByUserListView.as_view(), name='my-books'),
+url(r'^books/add/$', views.AddNewBook, name='add_book'),
 ]
-

@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from .forms import AddBookForm
-
+from django.http import HttpResponseRedirect
+from datetime import datetime
 # Create your views here.
 from .models import Item, Item_type, Book, Comic, Item_status
 from django.views import generic
@@ -51,21 +52,38 @@ class LoanedItemsByUserListView(LoginRequiredMixin,generic.ListView):
 
 
 def AddNewBook(request):
+    
     if request.POST:
         form = AddBookForm(request.POST)
         if form.is_valid():
-            additem= Item()
-            additem.item_name= form.cleaned_data['item_name']
-            return HttpResponseRedirect('/thanks/')
+            additem= Item ()
+            additem.item_name = form.cleaned_data['item_name']
+            additem.item_type_id = 1
+            additem.owned_by = request.user
+            additem.added_at = datetime.now()
+            additem.updated_at = datetime.now()
+            additem.save()
+
+            obj_id = additem.id
+
+            addbook = Book()
+            addbook.item_id = additem.id
+            addbook.title = form.cleaned_data['title']
+            addbook.author_first = form.cleaned_data['author_first']
+            addbook.author_last = form.cleaned_data['author_last']
+            addbook.isbn = form.cleaned_data['isbn']
+            addbook.publisher = form.cleaned_data['publisher']
+            addbook.year = form.cleaned_data['year']
+            addbook.description  = form.cleaned_data['description']
+            addbook.save()
+
+            addstatus = Item_status()
+            addstatus.item_id = additem.id
+
+            addstatus.save()
+
+            return HttpResponseRedirect('/catalog/books/')
     else:
         form = AddBookForm()
-    return render(request, 'add_book.html', {'form': form})
-
-
-
-
-
-
-
-
+    return render(request, 'catalog/add_book_form.html', {'form': form})
 
