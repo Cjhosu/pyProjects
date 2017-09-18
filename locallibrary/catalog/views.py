@@ -92,9 +92,9 @@ def AddNewItem(request):
     if request.POST:
         form = AddItemForm(request.POST)
         if form.is_valid():
-            objectlist = forms.cleaned_data.get('item_type')
-            return HttpResponseRedirect(request,render,'/catalog/add_book_form.html',{'objectlist' : objectlist})
+#            if request.POST = 'Book'
+            return HttpResponseRedirect(request,render,'/catalog/add_book_form.html')
     else:
         form = AddItemForm()
-        return render(request, 'catalog/add_item.html')
+        return render(request, 'catalog/add_item.html', {'form':form})
 

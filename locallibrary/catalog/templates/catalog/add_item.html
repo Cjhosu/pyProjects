@@ -3,15 +3,10 @@
 {% block content %}
 
 <br></br>
-    <h2> Add a book to lend </h2>
+    <h2> What kind of item are you adding? </h2>
 
-<form action="" method="post">
-    {% csrf_token %}
+<form method="POST" class="post-form">{% csrf_token %}
+    {{ form.as_p }}
+</form>
 
-<select>
-{% for o in objectlist %} 
-    <option value="{{o.type}}">{{o.type}}</option>
-{% endfor %}
-</select>
 {% endblock %}
-
