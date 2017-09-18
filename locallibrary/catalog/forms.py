@@ -1,5 +1,5 @@
 from django import forms
-
+from .models import Item_type
 
 class AddBookForm(forms.Form):
     item_id = forms.IntegerField
@@ -11,3 +11,6 @@ class AddBookForm(forms.Form):
     publisher = forms.CharField(max_length=30)
     year = forms.CharField(max_length=4)
     description = forms.CharField(widget=forms.Textarea)
+
+class AddItemForm(forms.Form):
+    item_type = forms.ModelChoiceField(queryset=Item_type.objects.all())

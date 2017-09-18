@@ -59,4 +59,3 @@ class Item_status(models.Model):
      return self.loaned_at
     def itemname(self):
       return (self.item.item_name)
-

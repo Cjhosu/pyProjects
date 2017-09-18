@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from .forms import AddBookForm
+from .forms import AddItemForm
 from django.http import HttpResponseRedirect
 from datetime import datetime
 # Create your views here.
@@ -52,7 +53,6 @@ class LoanedItemsByUserListView(LoginRequiredMixin,generic.ListView):
 
 
 def AddNewBook(request):
-    
     if request.POST:
         form = AddBookForm(request.POST)
         if form.is_valid():
@@ -87,3 +87,11 @@ def AddNewBook(request):
         form = AddBookForm()
     return render(request, 'catalog/add_book_form.html', {'form': form})
 
+def AddNewItem(request):
+    if request.POST:
+        form = AddItemForm(request.POST)
+        if form.is_valid():
+            return HttpResponseRedirect('/catalog/add_book_form.html',{'form' : form})
+    else:
+        form = AddItemForm()
+        return render(request, 'catalog/add_item.html')
