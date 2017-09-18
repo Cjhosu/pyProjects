@@ -1,0 +1,17 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+<br></br>
+    <h2> Add a book to lend </h2>
+
+<form action="" method="post">
+    {% csrf_token %}
+
+<select>
+{% for o in objectlist %} 
+    <option value="{{o.type}}">{{o.type}}</option>
+{% endfor %}
+</select>
+{% endblock %}
+
