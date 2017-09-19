@@ -8,7 +8,7 @@ from .models import Item, Item_type, Book, Comic, Item_status
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F
-
+from django.shortcuts import redirect
 
 def index(request):
     num_books=Book.objects.all().count()
@@ -89,11 +89,15 @@ def AddNewBook(request):
 
 
 def AddNewItem(request):
-    if request.POST:
+    if request.method == 'POST':
         form = AddItemForm(request.POST)
         if form.is_valid():
-#            if request.POST = 'Book'
-            return HttpResponseRedirect(request,render,'/catalog/add_book_form.html')
+            itemtype = form.cleaned_data['item_type']
+            print(itemtype.type)
+            if itemtype.type == 'Book':
+                return HttpResponseRedirect('/catalog/books/add')
+            else:
+                return HttpResponseRedirect('/catalog/books/')
     else:
         form = AddItemForm()
         return render(request, 'catalog/add_item.html', {'form':form})
