@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .forms import AddBookForm
 from .forms import AddItemForm
 from django.http import HttpResponseRedirect
@@ -101,4 +101,19 @@ def AddNewItem(request):
     else:
         form = AddItemForm()
         return render(request, 'catalog/add_item.html', {'form':form})
+
+def MarkReturned(request, pk):
+    item = get_object_or_404(Item_status, pk=pk)
+    if request.method == 'POST':
+        item.borrower = None
+        item.save()
+        return HttpResponseRedirect('/catalog/mybooks')
+    else:
+        return HttpResponseRedirect('/catalog/mybooks/')
+
+
+
+
+
+
 

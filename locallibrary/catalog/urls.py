@@ -10,4 +10,5 @@ urlpatterns = [
     url(r'^mybooks/$', views.LoanedItemsByUserListView.as_view(), name='my-books'),
     url(r'^books/add/$', views.AddNewBook, name='add_book'),
     url(r'^add_item/$', views.AddNewItem, name='add_item'),
+    url(r'mark-returned/(?P<pk>\d+)$',views.MarkReturned, name='mark-returned'),
 ]

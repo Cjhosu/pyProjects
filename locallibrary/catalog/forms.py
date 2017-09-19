@@ -15,3 +15,6 @@ class AddBookForm(forms.Form):
 
 class AddItemForm(forms.Form):
     item_type = forms.ModelChoiceField(queryset=Item_type.objects.all())
+
+class UpdateBorrower(forms.Form):
+    borrower = forms.CharField(max_length=150)

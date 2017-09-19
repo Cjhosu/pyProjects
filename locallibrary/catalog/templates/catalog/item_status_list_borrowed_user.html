@@ -10,6 +10,7 @@
          {% if itst.item.item_type.type == "Book" %}
     <li>
         <a href="{% url 'books-detail' itst.item.bookit.get.id %}">{{itst.item.bookit.get.title}}</a>
+        <input type="submit" value="Pass Along"<button class="btn btn-default btn-xs" type="button" style="color:#000000"/></button>
          {% else %}
                {{itst.item.bookit.get.id}}
         {% endif %}
@@ -29,6 +30,10 @@
          {% if thing.item.item_type.type == "Book" %}
     <li>
         <a href="{% url 'books-detail' thing.item.bookit.get.id %}">{{thing.item.bookit.get.title}}</a> <strong>({{thing.borrower}})</strong>
+<form action="{% url 'mark-returned' thing.id %}" method="post">
+{% csrf_token %}
+        <input type="submit" value="Mark Returned"<button class="btn btn-default btn-xs" type="button" style="color:#000000"/></button>
+</form>
       {% else %}
           {{thing.item.item_name}}
       {% endif %}
@@ -47,6 +52,7 @@
          {% if thing.item.item_type.type == "Book" %}
     <li>
         <a href="{% url 'books-detail' thing.item.bookit.get.id %}">{{thing.item.bookit.get.title}}</a>
+        <input type="submit" value="Loan"<button class="btn btn-default btn-xs" type="button" style="color:#000000"/></button>
       {% else %}
           {{thing.item.item_name}}
       {% endif %}
