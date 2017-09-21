@@ -55,6 +55,10 @@ class Item_status(models.Model):
     borrower = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     loaned_at = models.DateTimeField(default=None, blank=True, null=True)
     due_back = models.DateTimeField(default=None, blank=True, null=True)
+    def __str__(self):
+        if not self.borrower:
+          return"?"
+        return str(self.borrower)
     def __time__(self):
      return self.loaned_at
     def itemname(self):

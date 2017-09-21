@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from .forms import AddBookForm
+from .forms import AddBookForm, UpdateBorrowerForm
 from .forms import AddItemForm
 from django.http import HttpResponseRedirect
 from datetime import datetime
@@ -110,6 +110,30 @@ def MarkReturned(request, pk):
         return HttpResponseRedirect('/catalog/mybooks')
     else:
         return HttpResponseRedirect('/catalog/mybooks/')
+
+def PassBorrower(request, pk):
+    item = get_object_or_404(Item_status, pk=pk)
+    if request.method == 'POST':
+        request.session['pk']=pk
+        return HttpResponseRedirect('/catalog/update_borrower')
+    else:
+        return HttpResponseRedirect('/catalog/mybooks/')
+
+
+def UpdateBorrower(request):
+    if request.method == 'POST':
+        form = UpdateBorrowerForm(request.POST)
+        if form.is_valid():
+            pk= request.session['pk']
+            user = form.cleaned_data['user']
+            this = Item_status.objects.get(pk=pk)
+            this.borrower = user
+            this.save()
+            return HttpResponseRedirect('/catalog/mybooks/')
+    elif request.method == 'GET':
+        pk= request.session['pk']
+        form = UpdateBorrowerForm()
+        return render(request,'catalog/update_borrower.html', {'form':form})
 
 
 

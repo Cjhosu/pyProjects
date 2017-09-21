@@ -13,12 +13,15 @@
     <p>{{book.description|linebreaks}}</p>
   </div>
   <hr>
-  <h3>Copies</h3>
+  <h3>Availability</h3>
 
    {% for copy in book.item.item_status_set.all %}
     <hr>
     <p class="{% if copy.due_back == null %}text-success{% elif copy.due_back != null %}text-danger{% else %}text-warning{% endif %}"></p>
-    {% if copy.due_back != null %}<p><strong>On loan to: {{copy.borrower}}{% else %}There is a copy available!</strong></p>{% endif %}
-    {% endfor %}
+    {% if copy.borrower != null %}<p><strong>On loan to: {{copy.borrower}}</strong></p>
+    {% else %}<p><strong>There is a copy available! </strong></p>
+    <p><strong> Owner: {{book.item.owned_by}}</strong></p>
+ {% endif %}
+ {% endfor %}
   </div>
 {% endblock %}
