@@ -13,5 +13,5 @@ urlpatterns = [
     url(r'mark-returned/(?P<pk>\d+)$',views.MarkReturned, name='mark-returned'),
     url(r'^update_borrower/$', views.UpdateBorrower, name='update_borrower'),
     url(r'pass-borrower/(?P<pk>\d+)$',views.PassBorrower, name='pass-borrower'),
-    url(r'^signup/$', core_views.signup, name='signup'),
+    url(r'^signup/$',views.signup, name='signup'),
 ]

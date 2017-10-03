@@ -1,7 +1,7 @@
 
 # Create your views here.
 from django.shortcuts import render, get_object_or_404, redirect
-from .forms import AddBookForm, UpdateBorrowerForm, AddItemForm
+from .forms import AddBookForm, UpdateBorrowerForm, AddItemForm, SignUpForm
 from django.http import HttpResponseRedirect
 from datetime import datetime
 from .models import Item, Item_type, Book, Comic, Item_status
@@ -145,7 +145,7 @@ def signup(request):
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=raw_password)
             login(request, user)
-            return redirect('home')
+            return redirect('index')
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
