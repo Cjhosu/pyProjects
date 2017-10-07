@@ -1,10 +1,10 @@
 
 # Create your views here.
 from django.shortcuts import render, get_object_or_404, redirect
-from .forms import AddBookForm, AddComicForm, UpdateBorrowerForm, AddItemForm, SignUpForm
+from .forms import AddBookForm, AddComicForm, UpdateBorrowerForm, AddItemForm, SignUpForm, IssueBookRequestForm
 from django.http import HttpResponseRedirect
 from datetime import datetime
-from .models import Item, User, Item_type, Book, Comic, Item_status
+from .models import Item, User, Item_type, Book, Comic, Item_status, Item_request
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import login, authenticate
@@ -27,15 +27,16 @@ def index(request):
 class BookListView(LoginRequiredMixin,generic.ListView):
     model = Book
     paginate_by = 10
+    ordering = ('title', )
 
 
 class ComicListView(LoginRequiredMixin,generic.ListView):
     model = Comic
     paginate_by = 10
+    ordering = ('title', )
 
 class BookDetailView(LoginRequiredMixin,generic.DetailView):
     model = Book
-
 
 class ComicDetailView(LoginRequiredMixin,generic.DetailView):
     model = Comic
@@ -194,3 +195,17 @@ def signup(request):
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
+
+def IssueBookRequest(request,pk):
+    bookreq = get_object_or_404(Book, pk=pk)
+    if request.method == 'POST':
+        irequest = Item_request()
+        bookitem = Book.objects.get(pk=pk)
+        irequest.item_id = bookitem.item_id
+        irequest.requester = request.user
+        irequest.requested_at = datetime.now()
+        irequest.save()
+        return HttpResponseRedirect('/catalog/books')
+    else:
+        return HttpResponseRedirect('/catalog/')
+

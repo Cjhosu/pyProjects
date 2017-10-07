@@ -23,5 +23,11 @@
     <p><strong> Owner: {{book.item.owned_by}}</strong></p>
  {% endif %}
  {% endfor %}
+
+<form action="{% url 'issue-book-request' book.id %}" method="post">
+{% csrf_token %}
+        <input type="submit" value="Request Book"<button class="btn btn-default btn-xs" type="button" style="color:#000000"/></button>
+</form>
+
   </div>
 {% endblock %}

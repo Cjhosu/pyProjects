@@ -1,7 +1,12 @@
 from django import forms
 from django.forms import ModelForm
-from .models import Item_type , Item_status, User
+from .models import Item_type , Item_status, Item_request, User
 from django.contrib.auth.forms import UserCreationForm
+
+class IssueBookRequestForm(forms.ModelForm):
+    class Meta:
+        model = Item_request
+        fields = '__all__'
 
 class AddBookForm(forms.Form):
     item_id = forms.IntegerField

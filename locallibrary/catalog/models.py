@@ -50,6 +50,14 @@ class Comic(models.Model):
     def __str__(self):
       return (self.series)
 
+class Item_request(models.Model):
+    item = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True)
+    requester = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    requested_at = models.DateTimeField(default=None, blank=True, null=True)
+    filled_at = models.DateTimeField(default=None, blank=True, null=True)
+    def __str__(self):
+      return str(self.item)
+
 class Item_status(models.Model):
     item = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True)
     borrower = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
