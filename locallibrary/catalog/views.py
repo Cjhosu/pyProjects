@@ -6,6 +6,7 @@ from django.http import HttpResponseRedirect
 from datetime import datetime
 from .models import Item, User, Item_type, Book, Comic, Item_status, Item_request
 from django.views import generic
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
@@ -205,7 +206,8 @@ def IssueBookRequest(request,pk):
         irequest.requester = request.user
         irequest.requested_at = datetime.now()
         irequest.save()
-        return HttpResponseRedirect('/catalog/books')
+        messages.info(request, 'Your request has been received!')
+        return HttpResponseRedirect('/catalog/books/'+pk)
     else:
         return HttpResponseRedirect('/catalog/')
 
