@@ -13,5 +13,16 @@
   </ul>
 
 <p>You have visited this page {{ num_visits }}{% if num_visits == 1 %} time{% else %} times{% endif %}</p>
+<br>
+
+<p><strong> The following Books have been requested! </p> </strong>
+{% for thing in reqitem %}
+    {% if thing.item.owned_by == request.user %}
+
+<li>
+{{thing.item.bookit.get.title}} ({{thing.requester}})
+</li>
+    {% endif %}
+{% endfor %}
 
 {% endblock %}
