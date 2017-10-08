@@ -202,10 +202,11 @@ def IssueBookRequest(request,pk):
     if request.method == 'POST':
         irequest = Item_request()
         bookitem = Book.objects.get(pk=pk)
-        irequest.item_id = bookitem.item_id
-        irequest.requester = request.user
-        irequest.requested_at = datetime.now()
-        irequest.save()
+        obj, created = Item_request.objects.update_or_create(
+            item_id = bookitem.item_id,
+            requester = request.user,
+          defaults = {'requested_at': datetime.now()}
+        )
         messages.info(request, 'Your request has been received!')
         return HttpResponseRedirect('/catalog/books/'+pk)
     else:
