@@ -1,18 +1,17 @@
 
 # Create your views here.
-from django.shortcuts import render, get_object_or_404, redirect
 from .forms import AddBookForm, AddComicForm, UpdateBorrowerForm, AddItemForm, SignUpForm, IssueBookRequestForm
-from django.http import HttpResponseRedirect
-from datetime import datetime
 from .models import Item, User, Item_type, Book, Comic, Item_status, Item_request
-from .filters import BookListFilter
-from django.views import generic
-from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth import login, authenticate
-from django.contrib.auth.forms import UserCreationForm
-from django.db.models import F, Q
+from datetime import datetime
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
+from django.db.models import Q
+from django.http import HttpResponseRedirect
+from django.shortcuts import render, get_object_or_404, redirect
+from django.views import generic
 
 @login_required
 def index(request):
@@ -37,7 +36,6 @@ class BookListView(LoginRequiredMixin,generic.ListView):
 
     def get_queryset(self,**kwargs):
         filter_val = self.request.GET.get('search', '')
-        print(filter_val)
         return Book.objects.filter(Q(title__icontains = filter_val) | Q(author_last__icontains = filter_val))
 
 
@@ -49,7 +47,6 @@ class ComicListView(LoginRequiredMixin,generic.ListView):
 
     def get_queryset(self,**kwargs):
         filter_val = self.request.GET.get('search', '')
-        print(filter_val)
         return Comic.objects.filter(Q(title__icontains = filter_val) | Q(series__icontains = filter_val))
 
 class BookDetailView(LoginRequiredMixin,generic.DetailView):
@@ -150,7 +147,6 @@ def AddNewItem(request):
         form = AddItemForm(request.POST)
         if form.is_valid():
             itemtype = form.cleaned_data['item_type']
-            print(itemtype.type)
             if itemtype.type == 'Book':
                 return HttpResponseRedirect('/catalog/books/add')
             if itemtype.type == 'Comic':
@@ -226,7 +222,6 @@ def signup(request):
 def IssueBookRequest(request,pk):
     bookreq = get_object_or_404(Book, pk=pk)
     if request.method == 'POST':
-        irequest = Item_request()
         bookitem = Book.objects.get(pk=pk)
         obj, created = Item_request.objects.update_or_create(
             item_id = bookitem.item_id,
@@ -242,7 +237,6 @@ def IssueBookRequest(request,pk):
 def IssueComicRequest(request,pk):
     comicreq = get_object_or_404(Book, pk=pk)
     if request.method == 'POST':
-        irequest = Item_request()
         comicitem = Comic.objects.get(pk=pk)
         obj, created = Item_request.objects.update_or_create(
             item_id = comicitem.item_id,
