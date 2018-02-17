@@ -13,7 +13,18 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views import generic
-from django.views.generic.edit import UpdateView
+from django.views.generic.edit import UpdateView, FormView
+
+class AjaxTemplateMixin(object):
+     def dispatch(self, request, *args, **kwargs):
+         if not hasattr(self, 'ajax_template_name'):
+             split = self.template_name.split('.html')
+             split[-1] = '_inner'
+             split.append('.html')
+             self.ajax_template_name = ''.join(split)
+         if request.is_ajax():
+             self.template_name = self.ajax_template_name
+         return super(AjaxTemplateMixin, self).dispatch(request, *args, **kwargs)
 
 @login_required
 def index(request):
@@ -204,17 +215,9 @@ def AcceptRequest(request, pk):
     else:
         return HttpResponseRedirect('/catalog/')
 
-def DenyRequest(request, pk):
-    if request.method == 'POST':
-        request.session['pk']=pk
-        return HttpResponseRedirect('/catalog/cust_mes')
-    else:
-        return HttpResponseRedirect('/catalog/')
-
-def CustMes(request):
+def CustMes(request, pk):
     if request.POST:
         form = CustMesForm(request.POST)
-        pk= request.session['pk']
         req = get_object_or_404(Item_request, pk=pk)
         if form.is_valid():
             req.is_accepted = False
@@ -230,6 +233,7 @@ def CustMes(request):
     else:
         form = CustMesForm()
     return render(request, 'catalog/cust_mes.html', {'form': form})
+
 
 def AckMessage(request, pk):
     mes = get_object_or_404(Request_message, pk=pk)
