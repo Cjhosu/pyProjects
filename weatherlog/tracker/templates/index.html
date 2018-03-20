@@ -3,6 +3,21 @@
 <br>
 <br>
 <h3> Welcome to the Weatherlog Journal Tracker</h3>
-<h5> Below you will be able to create a new journal or log entries for a current one</h5>
+<h5> Select your journal below to log entries or use the link in the sidebar to create a new one</h5>
+<hr>
+<h2> Journals </h2>
+
+{% if journal_list %}
+    {% for journ in journal_list %}
+<li>
+    {{journ}}
+{% endfor %}
+</li>
+    {% else %} There is nothing here
+    {% endif %}
+
+
+
+
 {% endblock %}
 
