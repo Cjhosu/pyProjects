@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from .models import Location, Journal
+from .models import Location, Journal, Date_record
 from django.contrib.auth.forms import UserCreationForm
 
 class SignUpForm(UserCreationForm):
@@ -22,4 +22,7 @@ class CreateJournalForm(forms.ModelForm):
         model = Journal
         fields = ('description','locality')
 
-
+class DateRecordForm(forms.ModelForm):
+    class Meta:
+        model = Date_record
+        fields = ('log_date', 'cloud_cover_type', 'high_temp', 'low_temp')

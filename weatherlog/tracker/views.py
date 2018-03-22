@@ -1,21 +1,23 @@
 from django.shortcuts import render
-from .forms import SignUpForm, AddLocationForm, CreateJournalForm
+from .forms import SignUpForm, AddLocationForm, CreateJournalForm, DateRecordForm
 from django.contrib.auth import login, authenticate
-from .models import User, Location, Journal
+from .models import User, Location, Journal, Date_record
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
-from django.views import generic
+from django.views import generic, View
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.mixins import LoginRequiredMixin
 # Create your views here.
 
-@login_required
-def index(request):
-    journal_list=Journal.objects.filter(user=request.user)
-    return render(
-        request,
-        'index.html',
-        context={'journal_list' :journal_list}
-)
+class IndexView(LoginRequiredMixin, View):
+    def get(self, request):
+        journal_list=Journal.objects.filter(user=request.user)
+        return render(
+            request,
+            'index.html',
+            context={'journal_list' :journal_list}
+    )
 
 def signup(request):
     if request.method == 'POST':
@@ -67,3 +69,11 @@ def CreateJournal(request):
         form = CreateJournalForm()
     return render(request, 'tracker/create_journal.html', {'form' : form})
 
+def CreateDateRecord(request):
+    if request.method == 'POST':
+        form = DateRecordForm(request.POST)
+        if form.is_valid():
+            return HttpResponseRedirect('/tracker/')
+    else:
+        form = DateRecordForm()
+    return render(request, 'tracker/create_date_record.html', {'form' : form})

@@ -36,7 +36,7 @@ class Precip_type(models.Model):
       return self.description
 
 class Date_record(models.Model):
-    log_date = models.DateTimeField(default=None, blank=True, null=True)
+    log_date = models.DateField(default=None, blank=True, null=True)
     cloud_cover_type = models.ForeignKey(Cloud_cover_type, on_delete=models.SET_NULL, null=True)
     high_temp = models.IntegerField(default=None, blank=True, null=True)
     low_temp = models.IntegerField(default=None, blank=True, null=True)
