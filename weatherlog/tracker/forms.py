@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from .models import Location, Journal, Date_record, Cloud_cover_type
+from .models import Location, Journal, Date_record, Cloud_cover_type, Precip_type
 from django.contrib.auth.forms import UserCreationForm
 
 class SignUpForm(UserCreationForm):
@@ -30,13 +30,5 @@ class DateRecordForm(forms.Form):
     cloud_cover_type = forms.ModelChoiceField(queryset=Cloud_cover_type.objects.all())
     high_temp = forms.IntegerField()
     low_temp = forms.IntegerField()
-"""
-    widgets = {
-            'log_date': DateInput()
-        }
-"""
-"""
-    class Meta:
-        model = Date_record
-        fields = ('log_date', 'cloud_cover_type', 'high_temp', 'low_temp')
-"""
+    precip_type = forms.ModelChoiceField(queryset=Precip_type.objects.all(), required = False)
+    volume_in_inches = forms.FloatField(required = False)

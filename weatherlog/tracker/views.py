@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from .forms import SignUpForm, AddLocationForm, CreateJournalForm, DateRecordForm
 from django.contrib.auth import login, authenticate
-from .models import User, Location, Journal, Date_record
+from .models import User, Location, Journal, Date_record, Precip_record
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic, View
@@ -71,7 +71,7 @@ def CreateJournal(request):
 
 def CreateDateRecord(request,pk):
     journref = get_object_or_404(Journal, pk=pk)
-    date_record_list=Date_record.objects.filter(journal_id= pk)
+    date_record_list=Date_record.objects.filter(journal_id= pk).order_by('-log_date')
     if request.method == 'POST':
         form = DateRecordForm(request.POST)
         if form.is_valid():
@@ -82,6 +82,13 @@ def CreateDateRecord(request,pk):
             dr.low_temp = form.cleaned_data['low_temp']
             dr.cloud_cover_type = form.cleaned_data['cloud_cover_type']
             dr.save()
+
+            pr = Precip_record()
+            pr.date_record_id = dr.id
+            pr.precip_type = form.cleaned_data['precip_type']
+            pr.volume_in_inches = form.cleaned_data['volume_in_inches']
+            if pr.precip_type != None:
+                pr.save()
             return HttpResponseRedirect('/tracker/create_date_record/'+ pk)
     else:
         form = DateRecordForm()
