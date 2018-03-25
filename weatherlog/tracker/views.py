@@ -96,3 +96,8 @@ def CreateDateRecord(request,pk):
             'tracker/create_date_record.html'
             ,{'form' : form, 'date_record_list':date_record_list, 'journref':journref}
             )
+
+def DateRecordDetailView(request,pk):
+    return render(request,
+            'tracker/date_record.html'
+            )

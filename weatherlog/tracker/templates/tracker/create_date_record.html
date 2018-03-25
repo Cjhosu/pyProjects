@@ -21,7 +21,7 @@
 {% if date_record_list %}
     {% for daterec in date_record_list %}
 <li>
-        {{daterec}}
+       <a href="{% url 'date_record' daterec.pk %}">{{ daterec }}</a>
 </li>
     {% endfor %}
     {% else %} There is nothing here
