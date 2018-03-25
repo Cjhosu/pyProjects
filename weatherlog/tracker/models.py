@@ -42,7 +42,7 @@ class Date_record(models.Model):
     low_temp = models.IntegerField(default=None, blank=True, null=True)
     journal = models.ForeignKey(Journal, on_delete=models.SET_NULL, null=True)
     def __str__(self):
-      return self.description
+      return str(self.log_date)
 
 class Precip_record(models.Model):
     date_record = models.ForeignKey(Date_record, on_delete=models.SET_NULL, null=True)

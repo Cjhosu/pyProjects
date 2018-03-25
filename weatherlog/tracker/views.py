@@ -69,11 +69,23 @@ def CreateJournal(request):
         form = CreateJournalForm()
     return render(request, 'tracker/create_journal.html', {'form' : form})
 
-def CreateDateRecord(request):
+def CreateDateRecord(request,pk):
+    journref = get_object_or_404(Journal, pk=pk)
+    date_record_list=Date_record.objects.filter(journal_id= pk)
     if request.method == 'POST':
         form = DateRecordForm(request.POST)
         if form.is_valid():
-            return HttpResponseRedirect('/tracker/')
+            dr = Date_record()
+            dr.log_date = form.cleaned_data['log_date']
+            dr.journal_id = journref.pk
+            dr.high_temp = form.cleaned_data['high_temp']
+            dr.low_temp = form.cleaned_data['low_temp']
+            dr.cloud_cover_type = form.cleaned_data['cloud_cover_type']
+            dr.save()
+            return HttpResponseRedirect('/tracker/create_date_record/'+ pk)
     else:
         form = DateRecordForm()
-    return render(request, 'tracker/create_date_record.html', {'form' : form})
+    return render(request,
+            'tracker/create_date_record.html'
+            ,{'form' : form, 'date_record_list':date_record_list, 'journref':journref}
+            )

@@ -10,7 +10,7 @@
 {% if journal_list %}
     {% for journ in journal_list %}
 <li>
-    {{journ}}
+    <a href="create_date_record/{{journ.id}}">{{journ}}</a>
 {% endfor %}
 </li>
     {% else %} There is nothing here
