@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic, View
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render_to_response
@@ -78,6 +79,9 @@ def CreateJournal(request):
 def CreateDateRecord(request,pk):
     journref = get_object_or_404(Journal, pk=pk)
     date_record_list=Date_record.objects.filter(journal_id= pk).order_by('-log_date')
+    now = datetime.now()
+    year = now.year
+    month = now.month
     if request.method == 'POST':
         form = DateRecordForm(request.POST)
         if form.is_valid():
@@ -100,12 +104,15 @@ def CreateDateRecord(request,pk):
         form = DateRecordForm()
     return render(request,
             'tracker/create_date_record.html'
-            ,{'form' : form, 'date_record_list':date_record_list, 'journref':journref}
+            ,{'form' : form, 'date_record_list':date_record_list, 'journref':journref, 'year':year, 'month':month}
             )
 
 def DateRecordDetailView(request,pk):
     daterec = get_object_or_404(Date_record, pk=pk)
-    prerec = get_object_or_404(Precip_record, date_record_id = pk)
+    try:
+        prerec = get_object_or_404(Precip_record, date_record_id = pk)
+    except:
+        prerec = None
     return render(request,
             'tracker/date_record.html',
              {'daterec' :daterec , 'prerec' :prerec},
@@ -126,15 +133,24 @@ class WeatherCalendar(HTMLCalendar):
                 cssclass += ' filled'
                 body = ['<ul>']
                 for weather in self.weather[day]:
-                    body.append('<li>')
+                    body.append('<strong><a href="/tracker/date_record/'+esc(weather.pk)+'">')
+                    try:
+                        prerec = Precip_record.objects.get(date_record=weather)
+                    except:
+                        prerec = None
                     body.append('High Temp: ')
                     body.append(esc(weather.high_temp))
                     body.append('<br>')
                     body.append('Low Temp: ')
                     body.append(esc(weather.low_temp))
-                    body.append('<br>')
-                    body.append('</a></li>')
-                body.append('</ul>')
+                    if prerec != None:
+                        body.append('<br>')
+                        body.append(esc(prerec.volume_in_inches)+ ' of ')
+                        body.append(esc(prerec.precip_type))
+                    else:
+                        body.append('<br>')
+                        body.append('No Precipitation')
+                    body.append('</a></li></strong>')
                 return self.day_cell(cssclass, '%d %s' % (day, ''.join(body)))
             return self.day_cell(cssclass, day)
         return self.day_cell('noday', '&nbsp;')
@@ -153,10 +169,11 @@ class WeatherCalendar(HTMLCalendar):
         return '<td class="%s">%s</td>' % (cssclass, body)
 
 
-def calendar(request, year, month):
+def calendar(request, year, month,pk):
     year = int(year)
     month = int(month)
-    my_weather = Date_record.objects.order_by('log_date').filter(log_date__year=year, log_date__month=month)
+    journref = get_object_or_404(Journal, pk=pk)
+    my_weather = Date_record.objects.order_by('log_date').filter(log_date__year=year, log_date__month=month,journal_id=pk )
     cal = WeatherCalendar(my_weather).formatmonth(year, month)
     lPreviousYear = year
     lPreviousMonth = month - 1
@@ -176,4 +193,5 @@ def calendar(request, year, month):
                                                        'NextYear' : lNextYear,
                                                        'YearBeforeThis' : lYearBeforeThis,
                                                        'YearAfterThis' : lYearAfterThis,
+                                                       'journref' : journref,
                                                    })

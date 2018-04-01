@@ -6,6 +6,10 @@
 <p><strong> High Temp:</strong> {{ daterec.high_temp }}</p>
 <p><strong> Low Temp:</strong> {{ daterec.low_temp }}</p>
 <p><strong> Cloud Cover:</strong> {{ daterec.cloud_cover_type }}</p>
+{% if prerec != None %}
 <p><strong> Type of Precipitation:</strong> {{ prerec.precip_type }}</p>
 <p><strong> Volume In Inches:</strong> {{ prerec }}</p>
+{% else %}
+ No precipitation this day
+{% endif %}
 {% endblock %}
