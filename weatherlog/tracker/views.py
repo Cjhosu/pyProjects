@@ -143,13 +143,16 @@ class WeatherCalendar(HTMLCalendar):
                     body.append('<br>')
                     body.append('Low Temp: ')
                     body.append(esc(weather.low_temp))
+                    body.append('<br>')
+                    body.append(esc(weather.cloud_cover_type))
+                    body.append('<br>')
                     if prerec != None:
-                        body.append('<br>')
-                        body.append(esc(prerec.volume_in_inches)+ ' of ')
-                        body.append(esc(prerec.precip_type))
-                    else:
-                        body.append('<br>')
-                        body.append('No Precipitation')
+                        if prerec.volume_in_inches == None:
+                            body.append('Some ')
+                            body.append(esc(prerec.precip_type))
+                        else:
+                            body.append(esc(prerec.volume_in_inches)+ ' Inches of ')
+                            body.append(esc(prerec.precip_type))
                     body.append('</a></li></strong>')
                 return self.day_cell(cssclass, '%d %s' % (day, ''.join(body)))
             return self.day_cell(cssclass, day)
