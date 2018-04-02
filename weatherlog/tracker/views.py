@@ -1,20 +1,17 @@
-from django.shortcuts import render
-from datetime import datetime, date
 from .forms import SignUpForm, AddLocationForm, CreateJournalForm, DateRecordForm
-from django.contrib.auth import login, authenticate
 from .models import User, Location, Journal, Date_record, Precip_record
-from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404, redirect
-from django.views import generic, View
-from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ObjectDoesNotExist
+from calendar import HTMLCalendar, monthrange
+from datetime import datetime, date
 from django.contrib.auth import login, authenticate
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render_to_response
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect, render, render_to_response
 from django.utils.html import conditional_escape as esc
 from django.utils.safestring import mark_safe
+from django.views import generic, View
 from itertools import groupby
-from calendar import HTMLCalendar, monthrange
 # Create your views here.
 
 class IndexView(LoginRequiredMixin, View):
