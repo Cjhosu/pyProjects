@@ -1,3 +1,10 @@
+
+.sidebar-nav {
+    margin-top: 20px;
+    padding: 0;
+    list-style: none;
+}
+
 #calendar table {
     width: 95%;
     margin: auto;
@@ -38,3 +45,26 @@
 #calendar a {
     font-size: 10px;
 }
+
+.inline {
+    display: inline;
+    padding: 0px;
+}
+
+#fltlft{
+    float: left;
+}
+
+.btmlft {
+    vertical-align: bottom;
+    margin: 100px;
+}
+
+.padded {
+    margin: 10px;
+}
+
+#createJourn{
+    vertical-align: center;
+}
+
