@@ -10,6 +10,17 @@
     margin: auto;
 }
 
+#content {
+    position: relative;
+}
+#content img {
+    width: 10%;
+    position: absolute;
+    top: 0px;
+    right: 20px;
+    z-index:1001;
+}
+
 #calendar table tr th {
     text-align: center;
     font-size: 16px;
@@ -53,6 +64,10 @@
 
 #fltlft{
     float: left;
+}
+
+#fltrt{
+    float: right;
 }
 
 .btmlft {

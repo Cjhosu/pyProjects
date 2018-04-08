@@ -12,5 +12,6 @@ urlpatterns = [
     url(r'^create_date_record/(?P<pk>\d+)$', views.CreateDateRecord, name = 'create_date_record'),
     url(r'^date_record/(?P<pk>\d+)$', views.DateRecordDetailView, name = 'date_record'),
     url(r'^calendar/(?P<pk>\d+)/(?P<year>\d+)/(?P<month>\d+)$', views.calendar, name = 'calendar'),
+    url(r'^update_date_record/(?P<pk>\d+)$', views.UpdateDateRecordView, name = 'update_date_record'),
 ]
 

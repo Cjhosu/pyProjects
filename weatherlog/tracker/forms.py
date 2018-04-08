@@ -32,3 +32,11 @@ class DateRecordForm(forms.Form):
     low_temp = forms.IntegerField()
     precip_type = forms.ModelChoiceField(queryset=Precip_type.objects.all(), required = False)
     volume_in_inches = forms.FloatField(required = False)
+
+class UpdateDateRecordForm(forms.Form):
+    high_temp = forms.IntegerField(required = False)
+    low_temp = forms.IntegerField(required = False)
+    cloud_cover_type = forms.ModelChoiceField(queryset=Cloud_cover_type.objects.all(), required = False)
+    precip_type = forms.ModelChoiceField(queryset=Precip_type.objects.all(), required = False)
+    volume_in_inches = forms.FloatField(required = False)
+

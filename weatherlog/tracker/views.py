@@ -1,4 +1,4 @@
-from .forms import SignUpForm, AddLocationForm, CreateJournalForm, DateRecordForm
+from .forms import SignUpForm, AddLocationForm, CreateJournalForm, DateRecordForm, UpdateDateRecordForm
 from .models import User, Location, Journal, Date_record, Precip_record
 from calendar import HTMLCalendar, monthrange
 from datetime import datetime, date
@@ -104,15 +104,52 @@ def CreateDateRecord(request,pk):
             ,{'form' : form, 'date_record_list':date_record_list, 'journref':journref, 'year':year, 'month':month}
             )
 
+def UpdateDateRecordView(request,pk):
+    dateref = get_object_or_404(Date_record, pk=pk)
+    try:
+        prerec = get_object_or_404(Precip_record, date_record_id = pk)
+    except:
+        prerec = None
+    if request.method == 'POST':
+        form = UpdateDateRecordForm(request.POST)
+        if form.is_valid():
+            if form.cleaned_data['high_temp'] != None:
+                dateref.high_temp = form.cleaned_data['high_temp']
+            if form.cleaned_data['low_temp'] != None:
+                dateref.low_temp = form.cleaned_data['low_temp']
+            if form.cleaned_data['cloud_cover_type'] != None:
+                dateref.cloud_cover_type = form.cleaned_data['cloud_cover_type']
+            dateref.save()
+            if prerec != None:
+                if form.cleaned_data['precip_type'] != None:
+                     Precip_record.objects.filter(date_record_id = pk).update(precip_type=form.cleaned_data['precip_type'])
+                if form.cleaned_data['volume_in_inches'] != None:
+                     Precip_record.objects.filter(date_record_id = pk).update(volume_in_inches=form.cleaned_data['volume_in_inches'])
+            else:
+                if form.cleaned_data['precip_type'] != None or form.cleaned_data['volume_in_inches'] != None:
+                    pr = Precip_record()
+                    pr.date_record_id = pk
+                    pr.precip_type = form.cleaned_data['precip_type']
+                    pr.volume_in_inches = form.cleaned_data['volume_in_inches']
+                    pr.save()
+            return HttpResponseRedirect('/tracker/date_record/'+ pk)
+    else:
+        form = UpdateDateRecordForm()
+    return render(request,
+            'tracker/update_date_record.html'
+            ,{'form':form, 'dateref':dateref,}
+            )
+
 def DateRecordDetailView(request,pk):
     daterec = get_object_or_404(Date_record, pk=pk)
+    journal = get_object_or_404(Journal, pk = daterec.journal_id)
     try:
         prerec = get_object_or_404(Precip_record, date_record_id = pk)
     except:
         prerec = None
     return render(request,
             'tracker/date_record.html',
-             {'daterec' :daterec , 'prerec' :prerec},
+             {'daterec' :daterec , 'prerec' :prerec, 'journal' :journal},
             )
 
 class WeatherCalendar(HTMLCalendar):
