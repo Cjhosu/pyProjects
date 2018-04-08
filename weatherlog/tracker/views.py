@@ -42,6 +42,7 @@ def signup(request):
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
 
+@login_required
 def AddLocation(request):
     if request.method == 'POST':
       form = AddLocationForm(request.POST)
@@ -57,6 +58,7 @@ def AddLocation(request):
         form = AddLocationForm()
     return render(request, 'tracker/add_location.html', {'form' : form})
 
+@login_required
 def CreateJournal(request):
     if request.method == 'POST':
       form = CreateJournalForm(request.POST)
@@ -73,6 +75,7 @@ def CreateJournal(request):
         form = CreateJournalForm()
     return render(request, 'tracker/create_journal.html', {'form' : form})
 
+@login_required
 def CreateDateRecord(request,pk):
     journref = get_object_or_404(Journal, pk=pk)
     date_record_list=Date_record.objects.filter(journal_id= pk).order_by('-log_date')
@@ -104,6 +107,7 @@ def CreateDateRecord(request,pk):
             ,{'form' : form, 'date_record_list':date_record_list, 'journref':journref, 'year':year, 'month':month}
             )
 
+@login_required
 def UpdateDateRecordView(request,pk):
     dateref = get_object_or_404(Date_record, pk=pk)
     try:
@@ -140,6 +144,7 @@ def UpdateDateRecordView(request,pk):
             ,{'form':form, 'dateref':dateref,}
             )
 
+@login_required
 def DateRecordDetailView(request,pk):
     daterec = get_object_or_404(Date_record, pk=pk)
     journal = get_object_or_404(Journal, pk = daterec.journal_id)
@@ -152,7 +157,7 @@ def DateRecordDetailView(request,pk):
              {'daterec' :daterec , 'prerec' :prerec, 'journal' :journal},
             )
 
-class WeatherCalendar(HTMLCalendar):
+class WeatherCalendar(LoginRequiredMixin,HTMLCalendar):
 
     def __init__(self, weather):
         super(WeatherCalendar, self).__init__()
@@ -205,7 +210,7 @@ class WeatherCalendar(HTMLCalendar):
     def day_cell(self, cssclass, body):
         return '<td class="%s">%s</td>' % (cssclass, body)
 
-
+@login_required
 def calendar(request, year, month,pk):
     year = int(year)
     month = int(month)
