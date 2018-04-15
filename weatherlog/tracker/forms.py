@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from .models import Location, Journal, Date_record, Cloud_cover_type, Precip_type
+from .models import Location, Journal, Date_record, Cloud_cover_type, Precip_type, Date_record_note
 from django.contrib.auth.forms import UserCreationForm
 
 class SignUpForm(UserCreationForm):
@@ -40,3 +40,6 @@ class UpdateDateRecordForm(forms.Form):
     precip_type = forms.ModelChoiceField(queryset=Precip_type.objects.all(), required = False)
     volume_in_inches = forms.FloatField(required = False)
 
+
+class DateRecordNotesForm(forms.Form):
+    notes = forms.CharField(widget=forms.Textarea, required = False)

@@ -1,5 +1,5 @@
-from .forms import SignUpForm, AddLocationForm, CreateJournalForm, DateRecordForm, UpdateDateRecordForm
-from .models import User, Location, Journal, Date_record, Precip_record
+from .forms import SignUpForm, AddLocationForm, CreateJournalForm, DateRecordForm, UpdateDateRecordForm, DateRecordNotesForm
+from .models import User, Location, Journal, Date_record, Precip_record, Date_record_note
 from calendar import HTMLCalendar, monthrange
 from datetime import datetime, date
 from django.contrib.auth import login, authenticate
@@ -114,6 +114,10 @@ def UpdateDateRecordView(request,pk):
         prerec = get_object_or_404(Precip_record, date_record_id = pk)
     except:
         prerec = None
+    try:
+        noterec = get_object_or_404(Date_record_note, date_record_id = pk)
+    except:
+        noterec = None
     if request.method == 'POST':
         form = UpdateDateRecordForm(request.POST)
         if form.is_valid():
@@ -136,12 +140,24 @@ def UpdateDateRecordView(request,pk):
                     pr.precip_type = form.cleaned_data['precip_type']
                     pr.volume_in_inches = form.cleaned_data['volume_in_inches']
                     pr.save()
+        noteform = DateRecordNotesForm(request.POST)
+        if noteform.is_valid():
+            if noterec != None:
+                if noteform.cleaned_data['notes'] != None:
+                    Date_record_note.objects.filter(date_record_id = pk).update(note=noteform.cleaned_data['notes'])
+            else:
+                if noteform.cleaned_data['notes'] != '':
+                    drn = Date_record_note()
+                    drn.date_record_id = pk
+                    drn.note = noteform.cleaned_data['notes']
+                    drn.save()
             return HttpResponseRedirect('/tracker/date_record/'+ pk)
     else:
         form = UpdateDateRecordForm()
+        noteform = DateRecordNotesForm()
     return render(request,
             'tracker/update_date_record.html'
-            ,{'form':form, 'dateref':dateref,}
+            ,{'form':form, 'dateref':dateref, 'noteform':noteform}
             )
 
 @login_required
