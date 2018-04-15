@@ -36,12 +36,20 @@
     padding: 2px;
 }
 
+#calendar td.niceday {
+    background-color: #eee;
+}
+
 #calendar td.noday {
     background-color: #eee;
 }
 
 #calendar td.filled {
     background-color: #FFF6E1;
+}
+
+#calendar td.nice {
+    background-color: #FFCC66;
 }
 
 #calendar td.today {

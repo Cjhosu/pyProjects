@@ -54,3 +54,5 @@ class Precip_record(models.Model):
 class Date_record_note(models.Model):
     date_record = models.ForeignKey(Date_record, on_delete=models.SET_NULL, null=True)
     note = models.CharField(max_length=500)
+    def __str__(self):
+        return str(self.note)

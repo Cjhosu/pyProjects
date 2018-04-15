@@ -32,6 +32,7 @@ class DateRecordForm(forms.Form):
     low_temp = forms.IntegerField()
     precip_type = forms.ModelChoiceField(queryset=Precip_type.objects.all(), required = False)
     volume_in_inches = forms.FloatField(required = False)
+    notes = forms.CharField(widget=forms.Textarea, required = False)
 
 class UpdateDateRecordForm(forms.Form):
     high_temp = forms.IntegerField(required = False)

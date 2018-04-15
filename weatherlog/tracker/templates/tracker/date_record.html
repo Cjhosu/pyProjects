@@ -11,5 +11,8 @@
 <p><strong> Type of Precipitation:</strong> {{ prerec.precip_type }}</p>
 <p><strong> Volume In Inches:</strong> {{ prerec }}</p>
 {% endif %}
+{% if noterec != None %}
+<p><strong> Notes:</strong> {{noterec}}</p>
+{% endif %}
 <a href="{% url 'create_date_record' journal.pk %}">Back to {{journal}}
 {% endblock %}

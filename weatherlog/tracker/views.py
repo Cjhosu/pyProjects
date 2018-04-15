@@ -99,6 +99,13 @@ def CreateDateRecord(request,pk):
             pr.volume_in_inches = form.cleaned_data['volume_in_inches']
             if pr.precip_type != None:
                 pr.save()
+
+            drn = Date_record_note()
+            drn.date_record_id = dr.id
+            drn.note = form.cleaned_data['notes']
+            if drn.note != '':
+                drn.save()
+
             return HttpResponseRedirect('/tracker/create_date_record/'+ pk)
     else:
         form = DateRecordForm()
@@ -143,7 +150,7 @@ def UpdateDateRecordView(request,pk):
         noteform = DateRecordNotesForm(request.POST)
         if noteform.is_valid():
             if noterec != None:
-                if noteform.cleaned_data['notes'] != None:
+                if noteform.cleaned_data['notes'] != '':
                     Date_record_note.objects.filter(date_record_id = pk).update(note=noteform.cleaned_data['notes'])
             else:
                 if noteform.cleaned_data['notes'] != '':
@@ -168,9 +175,13 @@ def DateRecordDetailView(request,pk):
         prerec = get_object_or_404(Precip_record, date_record_id = pk)
     except:
         prerec = None
+    try:
+        noterec = get_object_or_404(Date_record_note , date_record_id = pk)
+    except:
+        noterec = None
     return render(request,
             'tracker/date_record.html',
-             {'daterec' :daterec , 'prerec' :prerec, 'journal' :journal},
+             {'daterec' :daterec , 'prerec' :prerec, 'journal' :journal, 'noterec':noterec},
             )
 
 class WeatherCalendar(LoginRequiredMixin,HTMLCalendar):
@@ -209,6 +220,8 @@ class WeatherCalendar(LoginRequiredMixin,HTMLCalendar):
                             body.append(esc(prerec.volume_in_inches)+ ' Inches of ')
                             body.append(esc(prerec.precip_type))
                     body.append('</a></li></strong>')
+                    if  prerec == None and (str(weather.cloud_cover_type) == 'Sunny' or str(weather.cloud_cover_type) == 'Mostly Sunny'):
+                        cssclass = ' nice'
                 return self.day_cell(cssclass, '%d %s' % (day, ''.join(body)))
             return self.day_cell(cssclass, day)
         return self.day_cell('noday', '&nbsp;')
