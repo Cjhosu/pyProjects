@@ -33,4 +33,9 @@ div.inline{
  display: inline-block;
 }
 
+.padded {
+    margin: 10px;
+}
+
+
 
