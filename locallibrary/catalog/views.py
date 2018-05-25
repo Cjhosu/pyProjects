@@ -1,4 +1,3 @@
-
 # Create your views here.
 from .forms import AddBookForm, UpdateBookForm, AddComicForm, UpdateComicForm, UpdateBorrowerForm, AddItemForm, SignUpForm, IssueBookRequestForm, CustMesForm
 from .models import Item, User, Item_type, Book, Comic, Item_status, Item_request, Request_message
@@ -14,17 +13,6 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views import generic, View
 from django.views.generic.edit import UpdateView, FormView
-
-class AjaxTemplateMixin(object):
-     def dispatch(self, request, *args, **kwargs):
-         if not hasattr(self, 'ajax_template_name'):
-             split = self.template_name.split('.html')
-             split[-1] = '_inner'
-             split.append('.html')
-             self.ajax_template_name = ''.join(split)
-         if request.is_ajax():
-             self.template_name = self.ajax_template_name
-         return super(AjaxTemplateMixin, self).dispatch(request, *args, **kwargs)
 
 @login_required
 def index(request):
@@ -66,10 +54,52 @@ class BookUpdateView(LoginRequiredMixin,View):
 
     def post(self, request, pk):
         bkinstance = get_object_or_404(Book, pk=pk)
-        if request.method == 'POST':
-            form = UpdateBookForm(request.POST , instance=bkinstance)
+        form = UpdateBookForm(request.POST , instance=bkinstance)
+        if form.is_valid():
             form.save()
             return redirect('/catalog/books/')
+
+class ComicListView(LoginRequiredMixin,generic.ListView):
+    model = Comic
+    paginate_by = 10
+    ordering = ('title', )
+
+    def get_queryset(self,**kwargs):
+        filter_val = self.request.GET.get('search', '')
+        return Comic.objects.filter(Q(title__icontains = filter_val) | Q(series__icontains = filter_val)).order_by('title')
+
+class ComicDetailView(LoginRequiredMixin,generic.DetailView):
+    model = Comic
+
+class ComicUpdateView(LoginRequiredMixin, View):
+    model = Comic
+
+    def get(self, request, pk):
+      cminstance= get_object_or_404(Comic, pk=pk)
+      form = UpdateComicForm(instance=cminstance)
+      return render(request, 'catalog/comic_form.html', {'form': form})
+
+    def post(self, request, pk):
+      cminstance = get_object_or_404(Comic, pk=pk)
+      form = UpdateComicForm(request.POST, instance=cminstance)
+      if form.is_valid():
+        form.save()
+        return redirect('/catalog/comics/')
+
+class LoanedItemsByUserListView(LoginRequiredMixin,generic.ListView):
+    model = Item_status
+    template_name ='catalog/item_status_list_borrowed_user.html'
+    paginate_by = 10
+
+    def get_queryset(self):
+        return Item_status.objects.filter(borrower=self.request.user).order_by('due_back')
+
+    def get_context_data(self, **kwargs):
+        context = super(LoanedItemsByUserListView, self).get_context_data(**kwargs)
+        context['Owned_list'] = Item.objects.filter(owned_by=self.request.user, item_type = 1)
+        context['Loaned_list'] = Item_status.objects.filter(item__owned_by=self.request.user).exclude(borrower=self.request.user).exclude(borrower__isnull=True)
+        context['Other_list'] = Item_status.objects.filter(item__owned_by=self.request.user).exclude(borrower=self.request.user).filter(borrower__isnull=True)
+        return context
 
 def AddNewBook(request):
     if request.POST:
@@ -106,47 +136,6 @@ def AddNewBook(request):
         form = AddBookForm()
     return render(request, 'catalog/add_book_form.html', {'form': form})
 
-
-
-class ComicListView(LoginRequiredMixin,generic.ListView):
-    model = Comic
-    paginate_by = 10
-    ordering = ('title', )
-
-    def get_queryset(self,**kwargs):
-        filter_val = self.request.GET.get('search', '')
-        return Comic.objects.filter(Q(title__icontains = filter_val) | Q(series__icontains = filter_val)).order_by('title')
-
-
-def ComicUpdateView(request, pk):
-    cminstance = get_object_or_404(Comic, pk=pk)
-    form = UpdateComicForm(request.POST or None, instance=cminstance)
-    if form.is_valid():
-        form.save()
-        return redirect('/catalog/comics/')
-    return render(request, 'catalog/comic_form.html', {'form': form})
-
-class ComicDetailView(LoginRequiredMixin,generic.DetailView):
-    model = Comic
-
-
-class LoanedItemsByUserListView(LoginRequiredMixin,generic.ListView):
-    model = Item_status
-    template_name ='catalog/item_status_list_borrowed_user.html'
-    paginate_by = 10
-
-    def get_queryset(self):
-        return Item_status.objects.filter(borrower=self.request.user).order_by('due_back')
-
-    def get_context_data(self, **kwargs):
-        context = super(LoanedItemsByUserListView, self).get_context_data(**kwargs)
-        context['Owned_list'] = Item.objects.filter(owned_by=self.request.user, item_type = 1)
-        context['Loaned_list'] = Item_status.objects.filter(item__owned_by=self.request.user).exclude(borrower=self.request.user).exclude(borrower__isnull=True)
-        context['Other_list'] = Item_status.objects.filter(item__owned_by=self.request.user).exclude(borrower=self.request.user).filter(borrower__isnull=True)
-        return context
-
-
-
 def AddNewComic(request):
     if request.POST:
         form = AddComicForm(request.POST)
@@ -182,7 +171,6 @@ def AddNewComic(request):
         form = AddComicForm()
     return render(request, 'catalog/add_comic_form.html', {'form': form})
 
-
 def AddNewItem(request):
     if request.method == 'POST':
         form = AddItemForm(request.POST)
@@ -198,7 +186,6 @@ def AddNewItem(request):
         form = AddItemForm()
         return render(request, 'catalog/add_item.html', {'form':form})
 
-
 def MarkReturned(request, pk):
     item = get_object_or_404(Item_status, pk=pk)
     if request.method == 'POST':
@@ -207,6 +194,36 @@ def MarkReturned(request, pk):
         return HttpResponseRedirect('/catalog/mybooks')
     else:
         return HttpResponseRedirect('/catalog/mybooks/')
+
+def IssueBookRequest(request,pk):
+    bookreq = get_object_or_404(Book, pk=pk)
+    if request.method == 'POST':
+        bookitem = Book.objects.get(pk=pk)
+        obj, created = Item_request.objects.update_or_create(
+            item_id = bookitem.item_id,
+            requester = request.user,
+            filled_at = None,
+          defaults = {'is_accepted':None, 'requested_at': datetime.now()}
+        )
+        messages.info(request, 'Your request has been received!')
+        return HttpResponseRedirect('/catalog/books/'+pk)
+    else:
+        return HttpResponseRedirect('/catalog/')
+
+def IssueComicRequest(request,pk):
+    comicreq = get_object_or_404(Comic, pk=pk)
+    if request.method == 'POST':
+        comicitem = Comic.objects.get(pk=pk)
+        obj, created = Item_request.objects.update_or_create(
+            item_id = comicitem.item_id,
+            requester = request.user,
+            filled_at = None,
+          defaults = {'requested_at': datetime.now()}
+        )
+        messages.info(request, 'Your request has been received!')
+        return HttpResponseRedirect('/catalog/comics/'+pk)
+    else:
+        return HttpResponseRedirect('/catalog/')
 
 def AcceptRequest(request, pk):
     req = get_object_or_404(Item_request, pk=pk)
@@ -302,34 +319,3 @@ def signup(request):
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
-
-def IssueBookRequest(request,pk):
-    bookreq = get_object_or_404(Book, pk=pk)
-    if request.method == 'POST':
-        bookitem = Book.objects.get(pk=pk)
-        obj, created = Item_request.objects.update_or_create(
-            item_id = bookitem.item_id,
-            requester = request.user,
-            filled_at = None,
-          defaults = {'is_accepted':None, 'requested_at': datetime.now()}
-        )
-        messages.info(request, 'Your request has been received!')
-        return HttpResponseRedirect('/catalog/books/'+pk)
-    else:
-        return HttpResponseRedirect('/catalog/')
-
-def IssueComicRequest(request,pk):
-    comicreq = get_object_or_404(Comic, pk=pk)
-    if request.method == 'POST':
-        comicitem = Comic.objects.get(pk=pk)
-        obj, created = Item_request.objects.update_or_create(
-            item_id = comicitem.item_id,
-            requester = request.user,
-            filled_at = None,
-          defaults = {'requested_at': datetime.now()}
-        )
-        messages.info(request, 'Your request has been received!')
-        return HttpResponseRedirect('/catalog/comics/'+pk)
-    else:
-        return HttpResponseRedirect('/catalog/')
-
