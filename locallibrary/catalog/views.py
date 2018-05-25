@@ -12,7 +12,7 @@ from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.views import generic
+from django.views import generic, View
 from django.views.generic.edit import UpdateView, FormView
 
 class AjaxTemplateMixin(object):
@@ -56,6 +56,20 @@ class BookListView(LoginRequiredMixin,generic.ListView):
 class BookDetailView(LoginRequiredMixin,generic.DetailView):
     model = Book
 
+class BookUpdateView(LoginRequiredMixin,View):
+    model = Book
+
+    def get(self, request, pk):
+        bkinstance = get_object_or_404(Book, pk=pk)
+        form = UpdateBookForm(instance=bkinstance)
+        return render(request, 'catalog/book_form.html', {'form': form})
+
+    def post(self, request, pk):
+        bkinstance = get_object_or_404(Book, pk=pk)
+        if request.method == 'POST':
+            form = UpdateBookForm(request.POST , instance=bkinstance)
+            form.save()
+            return redirect('/catalog/books/')
 
 def AddNewBook(request):
     if request.POST:
@@ -93,14 +107,6 @@ def AddNewBook(request):
     return render(request, 'catalog/add_book_form.html', {'form': form})
 
 
-
-def BookUpdateView(request, pk):
-    bkinstance = get_object_or_404(Book, pk=pk)
-    form = UpdateBookForm(request.POST or None, instance=bkinstance)
-    if form.is_valid():
-        form.save()
-        return redirect('/catalog/books/')
-    return render(request, 'catalog/book_form.html', {'form': form})
 
 class ComicListView(LoginRequiredMixin,generic.ListView):
     model = Comic
