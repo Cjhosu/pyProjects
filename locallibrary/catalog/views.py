@@ -1,5 +1,5 @@
 # Create your views here.
-from .forms import AddBookForm, UpdateBookForm, AddComicForm, UpdateComicForm, UpdateBorrowerForm, AddItemForm, SignUpForm, IssueBookRequestForm, CustMesForm
+from .forms import AddBookForm, UpdateBookForm, AddComicForm, UpdateComicForm, UpdateBorrowerForm, AddItemForm, SignUpForm, IssueBookRequestForm, CustMesForm, InactiveUserForm
 from .models import Item, User, Item_type, Book, Comic, Item_status, Item_request, Request_message
 from datetime import datetime
 from django.contrib.auth.decorators import login_required
@@ -275,13 +275,34 @@ def PassBorrower(request, pk):
     else:
         return HttpResponseRedirect('/catalog/mybooks/')
 
+def CreateInactiveUser(request, pk):
+    if request.method == 'POST':
+        form = InactiveUserForm(request.POST)
+        if form.is_valid():
+            this = User()
+            this.username = form.cleaned_data['display_name']
+            this.first_name = form.cleaned_data['first_name']
+            this.last_name = form.cleaned_data['last_name']
+            this.is_active = 'f'
+            this.save()
+            brw = Item_status.objects.get(pk=pk)
+            brw.borrower = this
+            brw.save()
+            return HttpResponseRedirect('/catalog/mybooks')
+    else:
+        form = InactiveUserForm()
+        return render(request, 'catalog/inactive_user.html', {'form': form})
 
 def UpdateBorrower(request):
     if request.method == 'POST':
-        form = UpdateBorrowerForm(request.POST)
+        form = UpdateBorrowerForm(request.user.id, request.POST)
         if form.is_valid():
             pk= request.session['pk']
-            user = form.cleaned_data['user']
+            userid = form.cleaned_data['user']
+            try:
+                user = User.objects.get(pk=userid)
+            except:
+                return HttpResponseRedirect('/catalog/inactive_user/'+pk)
             this = Item_status.objects.get(pk=pk)
             this.borrower = user
             this.save()
@@ -298,7 +319,7 @@ def UpdateBorrower(request):
             return HttpResponseRedirect('/catalog/mybooks/')
     elif request.method == 'GET':
         pk= request.session['pk']
-        form = UpdateBorrowerForm()
+        form = UpdateBorrowerForm(request.user.id)
         return render(request,'catalog/update_borrower.html', {'form':form})
 
 def signup(request):

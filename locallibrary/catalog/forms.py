@@ -69,21 +69,34 @@ class AddItemForm(forms.Form):
     item_type = forms.ModelChoiceField(queryset=Item_type.objects.all())
 
 class UpdateBorrowerForm(forms.Form):
-    user = forms.ModelChoiceField(queryset=User.objects.all())
-  #  def __str__(self):
-   #  return User.name
-
+    user = forms.ChoiceField(choices = [ ])
+    def __init__(self,uid, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        choices = [ ]
+        for options in User.objects.filter(is_active='t').exclude(id=uid):
+            choices.append((options.id , options.username))
+        choices.append((-1, 'other'))
+        self.fields['user'].choices = choices
 
 class SignUpForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
     last_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
-    email = forms.EmailField(max_length=254, help_text='Required. Inform a valid email address.')
+    email = forms.EmailField(max_length=254, help_text='Required. Enter a valid email address.')
 
     def __init__(self, *args, **kwargs):
         super(SignUpForm, self).__init__(*args, **kwargs)
 
         for fieldname in ['username', 'password1', 'password2']:
             self.fields[fieldname].help_text = None
+
+class InactiveUserForm(forms.Form):
+    first_name = forms.CharField(max_length=30, required=False)
+    last_name = forms.CharField(max_length=30, required=False)
+    display_name = forms.CharField(max_length=30)
+    class Meta:
+        model = User
+        fields= '__all__'
+        default_data = {'is_superuser':'f', 'is_staff':'f', 'password': 'nothing_will_hash_to_this', 'is_active':'f', 'email':'nomail'}
 
 class CustMesForm(forms.Form):
     message = forms.CharField(widget=forms.Textarea)
