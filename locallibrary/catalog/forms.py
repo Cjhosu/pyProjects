@@ -2,6 +2,7 @@ from django import forms
 from django.forms import ModelForm
 from .models import Book, Comic, Item_type , Item_status, Item_request, Request_message, User
 from django.contrib.auth.forms import UserCreationForm
+
 class BookFilterForm(forms.Form):
     def __int__(self, *args, request_data=None, **kwargs):
         super().__init__(*args, **kwargs)
