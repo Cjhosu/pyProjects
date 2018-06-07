@@ -1,6 +1,9 @@
 {% extends "base_generic.html" %}
 {% block content %}
 <h3> Logged Weather for {{daterec.log_date}} </h3>
+{% if dupe != None %}
+<h4> There is already a record for that date </h4>
+{% endif %}
 <a href="{% url 'update_date_record' daterec.pk %}"<button class="btn btn-default btn-sm" type="button" style="color: #000000">Update</button></a>
 <br>
 <h4>
