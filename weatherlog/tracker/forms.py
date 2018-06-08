@@ -40,6 +40,7 @@ class UpdateDateRecordForm(forms.Form):
     cloud_cover_type = forms.ModelChoiceField(queryset=Cloud_cover_type.objects.all(), required = False)
     precip_type = forms.ModelChoiceField(queryset=Precip_type.objects.all(), required = False)
     volume_in_inches = forms.FloatField(required = False)
+"""
     def __init__(self, high_temp, low_temp, cloud_cover_type, *args, **kwargs):
         super(UpdateDateRecordForm, self).__init__(*args, **kwargs)
         self.high_temp = high_temp
@@ -48,6 +49,6 @@ class UpdateDateRecordForm(forms.Form):
         self.fields['low_temp'].initial = low_temp
         self.high_temp = high_temp
         self.fields['cloud_cover_type'].initial = cloud_cover_type
-
+"""
 class DateRecordNotesForm(forms.Form):
     notes = forms.CharField(widget=forms.Textarea, required = False)

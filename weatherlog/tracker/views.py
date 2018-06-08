@@ -141,7 +141,7 @@ def UpdateDateRecordView(request,pk ):
             if form.cleaned_data['cloud_cover_type'] != None:
                 dateref.cloud_cover_type = form.cleaned_data['cloud_cover_type']
             dateref.save()
-            if prerec != None:
+            if is_precip_record(request,dateref.pk) == True:
                 if form.cleaned_data['precip_type'] != None:
                      Precip_record.objects.filter(date_record_id = pk).update(precip_type=form.cleaned_data['precip_type'])
                 if form.cleaned_data['volume_in_inches'] != None:
@@ -166,14 +166,22 @@ def UpdateDateRecordView(request,pk ):
                     drn.save()
             return HttpResponseRedirect('/tracker/date_record/'+ pk)
     else:
-        form = UpdateDateRecordForm(dateref.high_temp, dateref.low_temp, dateref.cloud_cover_type)
+        form = UpdateDateRecordForm()
         noteform = DateRecordNotesForm()
     return render(request,
             'tracker/update_date_record.html'
             ,{'form':form, 'dateref':dateref, 'noteform':noteform,}
             )
 
-@login_required
+def is_precip_record(request, pk):
+    try:
+        prerec = get_object_or_404(Precip_record , date_record_id = pk)
+    except:
+        prerec = None
+    if prerec != None:
+        return True
+
+login_required
 def DateRecordDetailView(request,pk):
     daterec = get_object_or_404(Date_record, pk=pk)
     journal = get_object_or_404(Journal, pk = daterec.journal_id)
