@@ -22,14 +22,28 @@
 <br>
 </h4>
 <h5>
-{% if date_record_list %}
-    {% for daterec in date_record_list %}
+{% if records %}
+    {% for daterec in records %}
 <li>
        <a href="{% url 'date_record' daterec.pk %}">{{ daterec }}</a>
 </li>
     {% endfor %}
+<div class="pagination">
+    <span class="step-links">
+        {% if records.has_previous %}
+            <a href="?page={{ records.previous_page_number }}">&lArr;</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ records.number }} of {{ records.paginator.num_pages }}.
+        </span>
+
+        {% if records.has_next %}
+            <a href="?page={{ records.next_page_number }}">&rArr;</a>
+        {% endif %}
+    </span>
+</div>
     {% else %} There is nothing here
 {% endif %}
-
 </h5>
 {% endblock %}

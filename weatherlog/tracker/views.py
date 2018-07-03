@@ -1,4 +1,5 @@
 from .forms import SignUpForm, AddLocationForm, CreateJournalForm, DateRecordForm, UpdateDateRecordForm, DateRecordNotesForm, UpdatePrecipRecordForm
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from .models import User, Location, Journal, Date_record, Precip_record, Date_record_note
 from calendar import HTMLCalendar, monthrange
 from datetime import datetime, date
@@ -78,7 +79,10 @@ def CreateJournal(request):
 @login_required
 def CreateDateRecord(request,pk):
     journref = get_object_or_404(Journal, pk=pk)
-    date_record_list=Date_record.objects.filter(journal_id= pk).order_by('-log_date')
+    date_record_list = Date_record.objects.filter(journal_id= pk).order_by('-log_date')
+    paginator = Paginator(date_record_list, 30)
+    page = request.GET.get('page')
+    records = paginator.page(page)
     now = datetime.now()
     year = now.year
     month = now.month
@@ -97,7 +101,7 @@ def CreateDateRecord(request,pk):
                     dupe = 'there is a record for that date already'
                     return render(request,
                     'tracker/create_date_record.html'
-                    ,{'form' : form, 'date_record_list':date_record_list,'dupe' : dupe, 'journref':journref, 'year':year, 'month':month}
+                    ,{'form' : form, 'records':records,'dupe' : dupe, 'journref':journref, 'year':year, 'month':month}
                     )
             pr = Precip_record()
             pr.date_record_id = dr.id
@@ -115,7 +119,7 @@ def CreateDateRecord(request,pk):
         form = DateRecordForm()
     return render(request,
             'tracker/create_date_record.html'
-            ,{'form' : form, 'date_record_list':date_record_list, 'journref':journref, 'year':year, 'month':month}
+            ,{'form' : form, 'records':records, 'journref':journref, 'year':year, 'month':month}
             )
 
 def is_precip_record(request, pk):
