@@ -1,6 +1,6 @@
-from .forms import SignUpForm, AddLocationForm, CreateJournalForm, DateRecordForm, UpdateDateRecordForm, DateRecordNotesForm, UpdatePrecipRecordForm
+from .forms import SignUpForm, AddLocationForm, CreateJournalForm, DateRecordForm, UpdateDateRecordForm, DateRecordNotesForm, UpdatePrecipRecordForm , UpdateShareForm
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from .models import User, Location, Journal, Date_record, Precip_record, Date_record_note
+from .models import User, Location, Journal, Date_record, Precip_record, Date_record_note, Share
 from calendar import HTMLCalendar, monthrange
 from datetime import datetime, date
 from django.contrib.auth import login, authenticate
@@ -82,7 +82,7 @@ def CreateDateRecord(request,pk):
     date_record_list = Date_record.objects.filter(journal_id= pk).order_by('-log_date')
     paginator = Paginator(date_record_list, 30)
     page = request.GET.get('page')
-    records = paginator.page(page)
+    records = paginator.get_page(page)
     now = datetime.now()
     year = now.year
     month = now.month
@@ -192,6 +192,23 @@ def DateRecordDetailView(request,pk):
             'tracker/date_record.html',
              {'daterec' :daterec , 'prerec' :prerec, 'journal' :journal, 'noterec':noterec},
             )
+
+def UpdateShare(request):
+    if request.method == 'POST':
+      form = UpdateShareForm(request.user.id, request.POST)
+      if form.is_valid():
+          share = Share()
+          journalid = form.cleaned_data['journal']
+          sharedid = form.cleaned_data['user']
+          share.journal = Journal.objects.get(pk=journalid)
+          share.shared_with_user = User.objects.get(pk=sharedid)
+          share.save()
+          return HttpResponseRedirect('/tracker/')
+      else:
+          return HttpResposnseRedirect('/tracker/')
+    else:
+        form = UpdateShareForm(request.user.id)
+    return render(request, 'tracker/update_share.html', {'form' : form})
 
 class WeatherCalendar(LoginRequiredMixin,HTMLCalendar):
 
