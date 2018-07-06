@@ -19,7 +19,18 @@
     {% else %} There is nothing here
     {% endif %}
 
+<br>
 
+<h2> Shared Journals </h2>
+
+{% if shared_list %}
+    {% for journ in shared_list %}
+<li>
+    <a href="create_date_record/{{journ.id}}">{{journ}}</a>
+{% endfor %}
+</li>
+    {% else %} There is nothing here
+    {% endif %}
 
 
 {% endblock %}

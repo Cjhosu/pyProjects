@@ -22,7 +22,7 @@ class Share(models.Model):
     shared_with_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     journal = models.ForeignKey(Journal, on_delete=models.SET_NULL, null=True)
     def __str__(self):
-      return self.description
+      return str(self.journal)
     class Meta:
         unique_together =('shared_with_user', 'journal')
 

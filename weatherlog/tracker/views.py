@@ -18,10 +18,11 @@ from itertools import groupby
 class IndexView(LoginRequiredMixin, View):
     def get(self, request):
         journal_list=Journal.objects.filter(user=request.user)
+        shared_list = Journal.objects.filter(share__shared_with_user=request.user)
         return render(
             request,
             'index.html',
-            context={'journal_list' :journal_list}
+            context={'journal_list' :journal_list , 'shared_list' :shared_list, }
     )
 
 def signup(request):
@@ -79,6 +80,7 @@ def CreateJournal(request):
 @login_required
 def CreateDateRecord(request,pk):
     journref = get_object_or_404(Journal, pk=pk)
+    userref = journref.user
     date_record_list = Date_record.objects.filter(journal_id= pk).order_by('-log_date')
     paginator = Paginator(date_record_list, 30)
     page = request.GET.get('page')
@@ -119,7 +121,7 @@ def CreateDateRecord(request,pk):
         form = DateRecordForm()
     return render(request,
             'tracker/create_date_record.html'
-            ,{'form' : form, 'records':records, 'journref':journref, 'year':year, 'month':month}
+            ,{'form' : form, 'records':records, 'journref':journref, 'userref' :userref, 'year':year, 'month':month}
             )
 
 def is_precip_record(request, pk):
@@ -161,20 +163,29 @@ class UpdateDateRecordView(LoginRequiredMixin, View):
         noteform = DateRecordNotesForm(request.POST)
         if form.is_valid() and precipform.is_valid() and noteform.is_valid():
             if precipform.cleaned_data['precip_type'] != None:
-                obj, created = Precip_record.objects.update_or_create(
-                    date_record_id = pk,
-                    defaults = {
-                    'precip_type':precipform.cleaned_data['precip_type'],
-                    'volume_in_inches':precipform.cleaned_data['volume_in_inches']
-                    })
+                precip_type = precipform.cleaned_data['precip_type']
+                volume_in_inches = precipform.cleaned_data['volume_in_inches']
+                UpdatePrecipRecord(self,request, pk, precip_type, volume_in_inches)
             if  is_note_record(request, pk) == True or noteform.cleaned_data['notes'] != '':
-                obj, created = Date_record_note.objects.update_or_create(
-                    date_record_id = pk,
-                    defaults = {
-                    'note':noteform.data['notes']
-                    })
+                note = noteform.data['notes']
+                UpdateNoteRecord(self,request,pk,note)
             form.save()
             return HttpResponseRedirect('/tracker/date_record/'+ pk)
+
+def UpdatePrecipRecord(self, request, pk, precip_type, volume_in_inches):
+    obj, created = Precip_record.objects.update_or_create(
+        date_record_id = pk,
+        defaults = {
+        'precip_type':precip_type,
+        'volume_in_inches':volume_in_inches
+        })
+
+def UpdateNoteRecord(slef, request, pk, note):
+    obj, crVeated = Date_record_note.objects.update_or_create(
+        date_record_id = pk,
+        defaults = {
+        'note':note
+        })
 
 @login_required
 def DateRecordDetailView(request,pk):
@@ -193,6 +204,7 @@ def DateRecordDetailView(request,pk):
              {'daterec' :daterec , 'prerec' :prerec, 'journal' :journal, 'noterec':noterec},
             )
 
+@login_required
 def UpdateShare(request):
     if request.method == 'POST':
       form = UpdateShareForm(request.user.id, request.POST)
@@ -202,13 +214,17 @@ def UpdateShare(request):
           sharedid = form.cleaned_data['user']
           share.journal = Journal.objects.get(pk=journalid)
           share.shared_with_user = User.objects.get(pk=sharedid)
-          share.save()
+          try:
+              share.save()
+          except:
+              dupe = 'you are already sharing that journal with that user'
+              return render(request, 'tracker/update_share.html', {'form' : form , 'dupe' :dupe})
           return HttpResponseRedirect('/tracker/')
       else:
           return HttpResposnseRedirect('/tracker/')
     else:
         form = UpdateShareForm(request.user.id)
-    return render(request, 'tracker/update_share.html', {'form' : form})
+    return render(request, 'tracker/update_share.html', {'form' : form ,})
 
 class WeatherCalendar(LoginRequiredMixin,HTMLCalendar):
 
