@@ -24,12 +24,10 @@ def CreateInactiveUser(request, pk):
 
 def isInactiveUser(request, fname, lname):
     try:
-        checkuser = User.objects.get( first_name = fname , last_name= lname, is_active = 'f')
+        checkuser = User.objects.get(first_name = fname , last_name= lname, is_active = 'f')
+        return checkuser.id
     except:
         checkuser = None
-    if checkuser != None:
-        return checkuser.id
-    else:
         return checkuser
 
 def signup(request):
