@@ -79,6 +79,7 @@ class UpdateBorrowerForm(forms.Form):
         choices.append((-1, 'other'))
         self.fields['user'].choices = choices
 
+
 class SignUpForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
     last_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
@@ -99,8 +100,13 @@ class InactiveUserForm(forms.Form):
         fields= '__all__'
         default_data = {'is_superuser':'f', 'is_staff':'f', 'password': 'nothing_will_hash_to_this', 'is_active':'f', 'email':'nomail'}
 
+class UpdateUserForm(forms.Form):
+    email = forms.EmailField(max_length=254, help_text='Required. Enter a valid email address.')
+    username = forms.CharField(max_length=30)
+
 class CustMesForm(forms.Form):
     message = forms.CharField(widget=forms.Textarea)
     class Meta:
         model = Request_message
         fields = '__all__'
+
