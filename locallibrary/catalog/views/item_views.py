@@ -11,7 +11,7 @@ class LoanedItemsByUserListView(LoginRequiredMixin,generic.ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return Item_status.objects.filter(borrower=self.request.user).order_by('due_back')
+        return Item_status.objects.filter(borrower=self.request.user).order_by('loaned_at')
 
     def get_context_data(self, **kwargs):
         context = super(LoanedItemsByUserListView, self).get_context_data(**kwargs)

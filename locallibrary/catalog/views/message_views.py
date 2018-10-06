@@ -1,5 +1,5 @@
-from ..models import Item_request, Request_message
-from ..forms import CustMesForm
+from ..models import Item_request, Request_message, User_alert
+from ..forms import CustMesForm, UserAlertForm
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 
@@ -22,7 +22,6 @@ def CustMes(request, pk):
         form = CustMesForm()
     return render(request, 'catalog/cust_mes.html', {'form': form})
 
-
 def AckMessage(request, pk):
     mes = get_object_or_404(Request_message, pk=pk)
     if request.method == 'POST':
@@ -30,4 +29,18 @@ def AckMessage(request, pk):
         mes.save()
         return HttpResponseRedirect('/catalog/')
     else:
+
         return HttpResponseRedirect('/catalog/')
+
+def UserAlertView(request):
+    if request.POST:
+        form = UserAlertForm(request.POST)
+        if form.is_valid():
+          obj, created = User_alert.objects.update_or_create(
+            user = request.user,
+          defaults = {'alert_type' : form.cleaned_data['alert_type']}
+          )
+          return HttpResponseRedirect('/')
+    else:
+      form = UserAlertForm()
+    return render(request, 'catalog/user_alerts.html', {'form': form})

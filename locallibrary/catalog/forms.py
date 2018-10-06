@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from .models import Book, Comic, Item_type , Item_status, Item_request, Request_message, User
+from .models import Book, Comic, Item_type , Item_status, Item_request, Request_message, User, User_alert, Alert_type
 from django.contrib.auth.forms import UserCreationForm
 
 class BookFilterForm(forms.Form):
@@ -79,6 +79,8 @@ class UpdateBorrowerForm(forms.Form):
         choices.append((-1, 'other'))
         self.fields['user'].choices = choices
 
+class UserAlertForm(forms.Form):
+    alert_type = forms.ModelChoiceField(queryset=Alert_type.objects.all())
 
 class SignUpForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=False, help_text='Optional.')

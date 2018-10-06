@@ -79,7 +79,6 @@ class Item_status(models.Model):
     item = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True)
     borrower = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     loaned_at = models.DateTimeField(default=None, blank=True, null=True)
-    due_back = models.DateTimeField(default=None, blank=True, null=True)
     def __str__(self):
         if not self.borrower:
           return"?"
@@ -88,3 +87,14 @@ class Item_status(models.Model):
      return self.loaned_at
     def itemname(self):
       return self.item.item_name
+
+class Alert_type(models.Model):
+    alert_name = models.CharField(max_length=100)
+    def __str__(self):
+      return str(self.alert_name)
+
+class User_alert(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    alert_type = models.ForeignKey(Alert_type, on_delete=models.SET_NULL, null=True, blank = True)
+    def __str__(self):
+      return str(self.alert_type.alert_name)

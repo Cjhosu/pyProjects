@@ -9,11 +9,11 @@ admin.site.register(Comic)
 admin.site.register(Item_type)
 admin.site.register(Item_request)
 class Item_statusAdmin(admin.ModelAdmin):
-    list_display = ('itemname', 'borrower', 'due_back', 'id')
-    list_filter = ('borrower', 'due_back')
+    list_display = ('itemname', 'borrower','id')
+    list_filter = ('id','borrower')
     fieldset = (
         (None, {
-            'fields': ('borrower', 'due_back')
+            'fields': ('id', 'borrower')
         })
     )
 admin.site.register(Item_status, Item_statusAdmin)

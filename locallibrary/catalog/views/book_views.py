@@ -87,8 +87,3 @@ def IssueBookRequest(request,pk):
     else:
         return HttpResponseRedirect('/catalog/')
 
-
-
-
-
-
