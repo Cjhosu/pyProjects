@@ -4,7 +4,15 @@
 {% if dupe != None %}
 <h4> There is already a record for that date </h4>
 {% endif %}
-<a href="{% url 'update_date_record' daterec.pk %}"<button class="btn btn-default btn-sm" type="button" style="color: #000000">Update</button></a>
+
+{% if journal.user == request.user %}
+  <a href="{% url 'update_date_record' daterec.pk %}"<button class="btn btn-default btn-sm" type="button" style="color: #000000">Update</button></a>
+{% else %}
+  <br>
+   <h5> Updating records is disabled on journals that aren't yours </h5>
+
+{% endif %}
+
 <br>
 <h4>
 <p><strong> High Temp:</strong> {{ daterec.high_temp }}</p>
