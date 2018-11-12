@@ -1,5 +1,6 @@
 from django import forms
 from django.forms import ModelForm
+from django.db.models import Q
 from .models import Location, Journal, Date_record, Cloud_cover_type, Precip_type, Date_record_note, User
 from django.contrib.auth.forms import UserCreationForm
 
@@ -33,6 +34,18 @@ class DateRecordForm(forms.Form):
     precip_type = forms.ModelChoiceField(queryset=Precip_type.objects.all(), required = False)
     volume_in_inches = forms.FloatField(required = False)
     notes = forms.CharField(widget=forms.Textarea, required = False)
+
+class DateRangeForm(forms.Form):
+    journal = forms.ChoiceField(choices = [  ])
+    start_date = forms.DateField(widget = DateInput())
+    end_date = forms.DateField(widget = DateInput())
+    def __init__(self,uid,*args,**kwargs):
+        super().__init__(*args, **kwargs)
+        journ_choices = [  ]
+        for journ_options in Journal.objects.filter(Q(user_id = uid) | Q(share__shared_with_user = uid)):
+            journ_choices.append((journ_options.id, journ_options.description))
+        self.fields['journal'].choices = journ_choices
+
 
 class UpdateDateRecordForm(forms.ModelForm):
     high_temp = forms.IntegerField(required = False)
