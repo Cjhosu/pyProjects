@@ -1,5 +1,5 @@
 from ..forms import AddBookForm, UpdateBookForm
-from ..models import Book, Item, Item_request, Item_status
+from ..models import Book, Item, Item_request, Item_status, Item_type
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from datetime import datetime
@@ -37,22 +37,26 @@ class BookUpdateView(LoginRequiredMixin,View):
             form.save()
             return redirect('/catalog/books/')
 
+def AddItem(request, form, type_id):
+    if request.POST:
+        additem = Item()
+        additem.item_name = form.cleaned_data['item_name']
+        additem.item_type_id = type_id
+        additem.owned_by = request.user
+        additem.added_at = datetime.now()
+        additem.updated_at = datetime.now()
+        additem.save()
+        return additem.id
+
 def AddNewBook(request):
     if request.POST:
         form = AddBookForm(request.POST)
+        item_type = Item_type.objects.get(type = 'Book')
+        type_id = item_type.id
         if form.is_valid():
-            additem = Item()
-            additem.item_name = form.cleaned_data['item_name']
-            additem.item_type_id = 1
-            additem.owned_by = request.user
-            additem.added_at = datetime.now()
-            additem.updated_at = datetime.now()
-            additem.save()
-
-            obj_id = additem.id
-
+            obj_id = AddItem(request, form, type_id)
             addbook = Book()
-            addbook.item_id = additem.id
+            addbook.item_id = obj_id
             addbook.title = form.cleaned_data['title']
             addbook.author_first = form.cleaned_data['author_first']
             addbook.author_last = form.cleaned_data['author_last']
@@ -63,7 +67,7 @@ def AddNewBook(request):
             addbook.save()
 
             addstatus = Item_status()
-            addstatus.item_id = additem.id
+            addstatus.item_id = obj_id
 
             addstatus.save()
 

@@ -1,5 +1,6 @@
-from .. forms import AddComicForm, UpdateComicForm
-from ..models import Comic, Item, Item_request, Item_status
+from ..forms import AddComicForm, UpdateComicForm
+from ..models import Comic, Item, Item_request, Item_status, Item_type
+from ..views import AddItem
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from datetime import datetime
@@ -38,19 +39,13 @@ class ComicUpdateView(LoginRequiredMixin, View):
 def AddNewComic(request):
     if request.POST:
         form = AddComicForm(request.POST)
+        item_type = Item_type.objects.get(type = 'Comic')
+        type_id = item_type.id
         if form.is_valid():
-            additem = Item()
-            additem.item_name = form.cleaned_data['item_name']
-            additem.item_type_id = 2
-            additem.owned_by = request.user
-            additem.added_at = datetime.now()
-            additem.updated_at = datetime.now()
-            additem.save()
-
-            obj_id = additem.id
+            obj_id = AddItem(request, form, type_id)
 
             addcomic = Comic()
-            addcomic.item_id = additem.id
+            addcomic.item_id = obj_id
             addcomic.publisher = form.cleaned_data['publisher']
             addcomic.series = form.cleaned_data['series']
             addcomic.title = form.cleaned_data['title']
@@ -61,7 +56,7 @@ def AddNewComic(request):
             addcomic.save()
 
             addstatus = Item_status()
-            addstatus.item_id = additem.id
+            addstatus.item_id = obj_id
 
             addstatus.save()
 
