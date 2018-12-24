@@ -65,16 +65,17 @@ def AddNewBook(request):
             addbook.year = form.cleaned_data['year']
             addbook.description  = form.cleaned_data['description']
             addbook.save()
-
-            addstatus = Item_status()
-            addstatus.item_id = obj_id
-
-            addstatus.save()
-
+            AddStatus(request, obj_id)
             return HttpResponseRedirect('/catalog/books/')
     else:
         form = AddBookForm()
     return render(request, 'catalog/add_book_form.html', {'form': form})
+
+def AddStatus(request,obj_id):
+    if request.POST:
+        addstatus = Item_status()
+        addstatus.item_id = obj_id
+        addstatus.save()
 
 def IssueBookRequest(request,pk):
     bookreq = get_object_or_404(Book, pk=pk)

@@ -1,6 +1,6 @@
 from ..forms import AddComicForm, UpdateComicForm
 from ..models import Comic, Item, Item_request, Item_status, Item_type
-from ..views import AddItem
+from ..views import AddItem, AddStatus
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from datetime import datetime
@@ -54,12 +54,7 @@ def AddNewComic(request):
             addcomic.month = form.cleaned_data['month']
             addcomic.description  = form.cleaned_data['description']
             addcomic.save()
-
-            addstatus = Item_status()
-            addstatus.item_id = obj_id
-
-            addstatus.save()
-
+            AddStatus(request,obj_id)
             return HttpResponseRedirect('/catalog/comics/')
     else:
         form = AddComicForm()
