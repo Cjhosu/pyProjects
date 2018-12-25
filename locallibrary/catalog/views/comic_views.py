@@ -1,6 +1,6 @@
 from ..forms import AddComicForm, UpdateComicForm
 from ..models import Comic, Item, Item_request, Item_status, Item_type
-from ..views import AddItem, AddStatus
+from .item_views import CreateItem, AddStatus
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from datetime import datetime

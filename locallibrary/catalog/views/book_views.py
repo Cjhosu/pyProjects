@@ -1,5 +1,6 @@
 from ..forms import AddBookForm, UpdateBookForm
 from ..models import Book, Item, Item_request, Item_status, Item_type
+from .item_views import CreateItem, AddStatus
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from datetime import datetime
@@ -37,24 +38,13 @@ class BookUpdateView(LoginRequiredMixin,View):
             form.save()
             return redirect('/catalog/books/')
 
-def AddItem(request, form, type_id):
-    if request.POST:
-        additem = Item()
-        additem.item_name = form.cleaned_data['item_name']
-        additem.item_type_id = type_id
-        additem.owned_by = request.user
-        additem.added_at = datetime.now()
-        additem.updated_at = datetime.now()
-        additem.save()
-        return additem.id
-
 def AddNewBook(request):
     if request.POST:
         form = AddBookForm(request.POST)
         item_type = Item_type.objects.get(type = 'Book')
         type_id = item_type.id
         if form.is_valid():
-            obj_id = AddItem(request, form, type_id)
+            obj_id = CreateItem(request, form, type_id)
             addbook = Book()
             addbook.item_id = obj_id
             addbook.title = form.cleaned_data['title']
@@ -70,12 +60,6 @@ def AddNewBook(request):
     else:
         form = AddBookForm()
     return render(request, 'catalog/add_book_form.html', {'form': form})
-
-def AddStatus(request,obj_id):
-    if request.POST:
-        addstatus = Item_status()
-        addstatus.item_id = obj_id
-        addstatus.save()
 
 def IssueBookRequest(request,pk):
     bookreq = get_object_or_404(Book, pk=pk)
