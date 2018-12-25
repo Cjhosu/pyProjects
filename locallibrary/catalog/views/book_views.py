@@ -9,7 +9,6 @@ from django.views import generic, View
 from django.shortcuts import render,redirect, get_object_or_404
 from django.http import HttpResponseRedirect
 
-
 class BookListView(LoginRequiredMixin,generic.ListView):
     model = Book
     paginate_by = 10
@@ -18,7 +17,6 @@ class BookListView(LoginRequiredMixin,generic.ListView):
     def get_queryset(self,**kwargs):
         filter_val = self.request.GET.get('search', '')
         return Book.objects.filter(Q(title__icontains = filter_val) | Q(author_last__icontains = filter_val)).order_by('title')
-
 
 class BookDetailView(LoginRequiredMixin,generic.DetailView):
     model = Book
