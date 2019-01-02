@@ -120,19 +120,10 @@ def CreateDateRecord(request,pk):
                     dupe = 'there is a record for that date already'
                     return render(request,
                     'tracker/create_date_record.html'
-                    ,{'form' : form, 'records':records,'dupe' : dupe, 'journref':journref, 'year':year, 'month':month}
+                    ,{'form':form, 'records':records, 'dupe':dupe, 'journref':journref, 'year':year, 'month':month}
                     )
-            pr = Precip_record()
-            pr.date_record_id = dr.id
-            pr.precip_type = form.cleaned_data['precip_type']
-            pr.volume_in_inches = form.cleaned_data['volume_in_inches']
-            if pr.precip_type != None:
-                pr.save()
-            drn = Date_record_note()
-            drn.date_record_id = dr.id
-            drn.note = form.cleaned_data['notes']
-            if drn.note != '':
-                drn.save()
+            AddPrecip(request, form, dr.id)
+            AddNote(request, form, dr.id)
             return HttpResponseRedirect('/tracker/create_date_record/'+ pk)
     else:
         form = DateRecordForm()
@@ -140,6 +131,21 @@ def CreateDateRecord(request,pk):
             'tracker/create_date_record.html'
             ,{'form' : form, 'records':records, 'journref':journref, 'userref' :userref, 'year':year, 'month':month}
             )
+
+def AddPrecip(request, form, date_record_id):
+    pr = Precip_record()
+    pr.date_record_id = date_record_id
+    pr.precip_type = form.cleaned_data['precip_type']
+    pr.volume_in_inches = form.cleaned_data['volume_in_inches']
+    if pr.precip_type != None:
+        pr.save()
+
+def AddNote(request, form, date_record_id):
+    drn = Date_record_note()
+    drn.date_record_id = date_record_id
+    drn.note = form.cleaned_data['notes']
+    if drn.note != '':
+        drn.save()
 
 def is_precip_record(request, pk):
     try:
