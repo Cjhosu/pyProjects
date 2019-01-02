@@ -43,21 +43,24 @@ def AddNewBook(request):
         type_id = item_type.id
         if form.is_valid():
             obj_id = CreateItem(request, form, type_id)
-            addbook = Book()
-            addbook.item_id = obj_id
-            addbook.title = form.cleaned_data['title']
-            addbook.author_first = form.cleaned_data['author_first']
-            addbook.author_last = form.cleaned_data['author_last']
-            addbook.isbn = form.cleaned_data['isbn']
-            addbook.publisher = form.cleaned_data['publisher']
-            addbook.year = form.cleaned_data['year']
-            addbook.description  = form.cleaned_data['description']
-            addbook.save()
+            CreateBookRecord(request, form, obj_id)
             AddStatus(request, obj_id)
             return HttpResponseRedirect('/catalog/books/')
     else:
         form = AddBookForm()
     return render(request, 'catalog/add_book_form.html', {'form': form})
+
+def CreateBookRecord(request, form, obj_id):
+    newbook = Book()
+    newbook.item_id = obj_id
+    newbook.title = form.cleaned_data['title']
+    newbook.author_first = form.cleaned_data['author_first']
+    newbook.author_last = form.cleaned_data['author_last']
+    newbook.isbn = form.cleaned_data['isbn']
+    newbook.publisher = form.cleaned_data['publisher']
+    newbook.year = form.cleaned_data['year']
+    newbook.description  = form.cleaned_data['description']
+    newbook.save()
 
 def IssueBookRequest(request,pk):
     bookreq = get_object_or_404(Book, pk=pk)
