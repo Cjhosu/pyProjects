@@ -1,6 +1,6 @@
+from .item_views import CreateItem, AddStatus, RequestItem
 from ..forms import AddComicForm, UpdateComicForm
 from ..models import Comic, Item, Item_request, Item_status, Item_type
-from .item_views import CreateItem, AddStatus
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from datetime import datetime
@@ -42,34 +42,31 @@ def AddNewComic(request):
         item_type = Item_type.objects.get(type = 'Comic')
         type_id = item_type.id
         if form.is_valid():
-            obj_id = AddItem(request, form, type_id)
-
-            addcomic = Comic()
-            addcomic.item_id = obj_id
-            addcomic.publisher = form.cleaned_data['publisher']
-            addcomic.series = form.cleaned_data['series']
-            addcomic.title = form.cleaned_data['title']
-            addcomic.number = form.cleaned_data['number']
-            addcomic.year = form.cleaned_data['year']
-            addcomic.month = form.cleaned_data['month']
-            addcomic.description  = form.cleaned_data['description']
-            addcomic.save()
+            obj_id = CreateItem(request, form, type_id)
+            CreateComicRecord(request, form, obj_id)
             AddStatus(request,obj_id)
             return HttpResponseRedirect('/catalog/comics/')
     else:
         form = AddComicForm()
     return render(request, 'catalog/add_comic_form.html', {'form': form})
 
+def CreateComicRecord(request, form, obj_id):
+    newcomic = Comic()
+    newcomic.item_id = obj_id
+    newcomic.publisher = form.cleaned_data['publisher']
+    newcomic.series = form.cleaned_data['series']
+    newcomic.title = form.cleaned_data['title']
+    newcomic.number = form.cleaned_data['number']
+    newcomic.year = form.cleaned_data['year']
+    newcomic.month = form.cleaned_data['month']
+    newcomic.description  = form.cleaned_data['description']
+    newcomic.save()
+
 def IssueComicRequest(request,pk):
     comicreq = get_object_or_404(Comic, pk=pk)
     if request.method == 'POST':
         comicitem = Comic.objects.get(pk=pk)
-        obj, created = Item_request.objects.update_or_create(
-            item_id = comicitem.item_id,
-            requester = request.user,
-            filled_at = None,
-          defaults = {'requested_at': datetime.now()}
-        )
+        RequestItem(request, comicitem.item_id, request.user)
         messages.info(request, 'Your request has been received!')
         return HttpResponseRedirect('/catalog/comics/'+pk)
     else:
