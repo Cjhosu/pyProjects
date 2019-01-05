@@ -1,6 +1,6 @@
 from ..forms import AddBookForm, UpdateBookForm
 from ..models import Book, Item, Item_request, Item_status, Item_type
-from .item_views import CreateItem, AddStatus
+from .item_views import CreateItem, AddStatus, RequestItem
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from datetime import datetime
@@ -66,12 +66,7 @@ def IssueBookRequest(request,pk):
     bookreq = get_object_or_404(Book, pk=pk)
     if request.method == 'POST':
         bookitem = Book.objects.get(pk=pk)
-        obj, created = Item_request.objects.update_or_create(
-            item_id = bookitem.item_id,
-            requester = request.user,
-            filled_at = None,
-          defaults = {'is_accepted':None, 'requested_at': datetime.now()}
-        )
+        RequestItem(request, bookitem.item_id, request.user)
         messages.info(request, 'Your request has been received!')
         return HttpResponseRedirect('/catalog/books/'+pk)
     else:

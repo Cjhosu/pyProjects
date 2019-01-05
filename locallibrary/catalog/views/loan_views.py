@@ -1,3 +1,4 @@
+from .item_views import RequestItem
 from ..forms import UpdateBorrowerForm
 from ..models import Item_status, Item_request, Request_message, User
 from datetime import datetime
@@ -12,7 +13,6 @@ def MarkReturned(request, pk):
         return HttpResponseRedirect('/catalog/mybooks')
     else:
         return HttpResponseRedirect('/catalog/mybooks/')
-
 
 def AcceptRequest(request, pk):
     req = get_object_or_404(Item_request, pk=pk)
@@ -45,16 +45,11 @@ def UpdateBorrower(request):
                 user = User.objects.get(pk=userid)
             except:
                 return HttpResponseRedirect('/catalog/inactive_user/'+pk)
-            this = Item_status.objects.get(pk=pk)
-            this.borrower = user
-            this.save()
-            obj, created = Item_request.objects.update_or_create(
-                item_id = this.item_id,
-                requester = this.borrower,
-                filled_at = None,
-              defaults = {'requested_at': datetime.now()}
-            )
-            fillreq = Item_request.objects.get(item_id = this.item_id,requester = this.borrower, filled_at = None)
+            itemstatus = Item_status.objects.get(pk=pk)
+            itemstatus.borrower = user
+            itemstatus.save()
+            RequestItem(request,itemstatus.item_id, user)
+            fillreq = Item_request.objects.get(item_id = itemstatus.item_id,requester = itemstatus.borrower, filled_at = None)
             if fillreq.filled_at == None:
                 fillreq.filled_at = datetime.now()
                 fillreq.save()

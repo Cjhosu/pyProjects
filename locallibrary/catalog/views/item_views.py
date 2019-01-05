@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views import generic
-from ..models import Item, Item_status
+from ..models import Item, Item_status, Item_request
 from ..forms import AddItemForm
 
 class LoanedItemsByUserListView(LoginRequiredMixin,generic.ListView):
@@ -52,3 +52,12 @@ def AddStatus(request,obj_id):
         addstatus = Item_status()
         addstatus.item_id = obj_id
         addstatus.save()
+
+def RequestItem(request, itemid, borrower):
+    obj, created = Item_request.objects.update_or_create(
+        item_id = itemid,
+        requester = borrower,
+        filled_at = None,
+        defaults = {'requested_at': datetime.now}
+            )
+
