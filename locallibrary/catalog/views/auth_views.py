@@ -1,22 +1,23 @@
+from .loan_views import SetBorrower
 from ..forms import InactiveUserForm, SignUpForm, UpdateUserForm
 from ..models import Item_status, User
 from django.contrib.auth import login, authenticate
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect,reverse,get_object_or_404
 
-def CreateInactiveUser(request, pk):
+def CreateInactiveUser(request):
     if request.method == 'POST':
         form = InactiveUserForm(request.POST)
         if form.is_valid():
-            this = User()
-            this.username = form.cleaned_data['display_name']
-            this.first_name = form.cleaned_data['first_name']
-            this.last_name = form.cleaned_data['last_name']
-            this.is_active = 'f'
-            this.save()
-            brw = Item_status.objects.get(pk=pk)
-            brw.borrower = this
-            brw.save()
+            newuser = User()
+            newuser.username = form.cleaned_data['display_name']
+            newuser.first_name = form.cleaned_data['first_name']
+            newuser.last_name = form.cleaned_data['last_name']
+            newuser.is_active = 'f'
+            newuser.save()
+            if request.session['pk'] != None:
+                pk = request.session['pk']
+                SetBorrower(request, pk, newuser)
             return HttpResponseRedirect('/catalog/mybooks')
     else:
         form = InactiveUserForm()
