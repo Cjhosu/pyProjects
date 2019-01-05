@@ -1,4 +1,4 @@
-from ..forms import AddBookForm, UpdateBookForm, AddComicForm, UpdateComicForm, UpdateBorrowerForm, AddItemForm, SignUpForm, IssueBookRequestForm, CustMesForm, InactiveUserForm
+from ..forms import AddBookForm, UpdateBookForm, AddComicForm, UpdateComicForm, OtherActiveUsersForm, AddItemForm, SignUpForm, IssueBookRequestForm, CustMesForm, InactiveUserForm
 from ..models import Item, User, Item_type, Book, Comic, Item_status, Item_request, Request_message
 from datetime import datetime
 from django.contrib.auth.decorators import login_required

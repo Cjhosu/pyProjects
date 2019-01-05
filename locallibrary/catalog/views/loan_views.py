@@ -1,5 +1,5 @@
 from .item_views import RequestItem
-from ..forms import UpdateBorrowerForm
+from ..forms import OtherActiveUsersForm
 from ..models import Item_status, Item_request, Request_message, User
 from datetime import datetime
 from django.http import HttpResponseRedirect
@@ -31,30 +31,37 @@ def PassBorrower(request, pk):
     item = get_object_or_404(Item_status, pk=pk)
     if request.method == 'POST':
         request.session['pk']=pk
-        return HttpResponseRedirect('/catalog/update_borrower')
+        return HttpResponseRedirect('/catalog/loan_item')
     else:
         return HttpResponseRedirect('/catalog/mybooks/')
 
-def UpdateBorrower(request):
+def SetBorrower(request, pk, user):
+    itemstatus = Item_status.objects.get(pk=pk)
+    itemstatus.borrower = user
+    itemstatus.save()
+
+def LoanItem(request):
     if request.method == 'POST':
-        form = UpdateBorrowerForm(request.user.id, request.POST)
+        form = OtherActiveUsersForm(request.user.id, request.POST)
         if form.is_valid():
             pk= request.session['pk']
             userid = form.cleaned_data['user']
             try:
                 user = User.objects.get(pk=userid)
             except:
-                return HttpResponseRedirect('/catalog/inactive_user/'+pk)
+                return HttpResponseRedirect('/catalog/inactive_user/')
+            SetBorrower(request, pk, user)
             itemstatus = Item_status.objects.get(pk=pk)
-            itemstatus.borrower = user
-            itemstatus.save()
             RequestItem(request,itemstatus.item_id, user)
-            fillreq = Item_request.objects.get(item_id = itemstatus.item_id,requester = itemstatus.borrower, filled_at = None)
-            if fillreq.filled_at == None:
-                fillreq.filled_at = datetime.now()
-                fillreq.save()
+            FillRequest(request, itemstatus.item_id, user)
             return HttpResponseRedirect('/catalog/mybooks/')
     elif request.method == 'GET':
-        pk= request.session['pk']
-        form = UpdateBorrowerForm(request.user.id)
-        return render(request,'catalog/update_borrower.html', {'form':form})
+        pk = request.session['pk']
+        form = OtherActiveUsersForm(request.user.id)
+        return render(request,'catalog/other_active_users.html', {'form':form})
+
+def FillRequest(request, itemid, borrower):
+    itemrequest = Item_request.objects.get(item_id = itemid, requester = borrower, filled_at = None)
+    itemrequest.filled_at = datetime.now()
+    itemrequest.save()
+
