@@ -16,17 +16,31 @@ from django.utils.safestring import mark_safe
 from django.views import generic, View
 from itertools import groupby
 from datetime import date
+import requests
 # Create your views here.
 
 class IndexView(LoginRequiredMixin, View):
+
     def get(self, request):
         journal_list=Journal.objects.filter(user=request.user)
         shared_list = Journal.objects.filter(share__shared_with_user=request.user)
+        weatherdata = self.call_darksky()
+        current_temp = weatherdata["currently"]["temperature"]
         return render(
             request,
             'index.html',
-            context={'journal_list' :journal_list , 'shared_list' :shared_list, }
-    )
+            context={'journal_list' :journal_list , 'shared_list' :shared_list, 'current_temp':current_temp })
+
+    def call_darksky(self):
+        location = self.get_location()
+        response = requests.get('https://api.darksky.net/forecast/d021c6ab4940997d6a5440c4e72a1006/'+location['user_long']+','+location['user_lat']+'?exclude=daily,minutely,hourly,alerts,flags')
+        weatherdata = response.json()
+        return weatherdata
+
+    def get_location(self):
+        user_long = '40.06360000000001'
+        user_lat = '-83.18104040000003'
+        return ({'user_long':user_long, 'user_lat':user_lat})
 
 def signup(request):
     if request.method == 'POST':
