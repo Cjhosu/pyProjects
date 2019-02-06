@@ -20,7 +20,7 @@ class Journal(models.Model):
       return self.description
 
 class Current_location(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True)
     location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True)
     def __str__(self):
       return self.location
