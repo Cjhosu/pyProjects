@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 from django.db.models import Q
-from .models import Location, Journal, Date_record, Cloud_cover_type, Precip_type, Date_record_note, User
+from .models import Location, Journal, Date_record, Cloud_cover_type, Precip_type, Date_record_note, User, Current_location
 from django.contrib.auth.forms import UserCreationForm
 
 class SignUpForm(UserCreationForm):
@@ -16,12 +16,15 @@ class SignUpForm(UserCreationForm):
 class AddLocationForm(forms.ModelForm):
     class Meta:
         model = Location
-        fields = '__all__'
+        fields = ('locality_name', 'zip')
 
 class CreateJournalForm(forms.ModelForm):
     class Meta:
         model = Journal
         fields = ('description','locality')
+
+class HomeLocationForm(forms.Form):
+    location = forms.ModelChoiceField(queryset=Location.objects.all())
 
 class DateInput(forms.DateInput):
     input_type = 'date'
@@ -75,6 +78,3 @@ class UpdateShareForm(forms.Form):
         for journ_options in Journal.objects.filter(user_id=uid):
             journ_choices.append((journ_options.id , journ_options.description))
         self.fields['journal'].choices = journ_choices
-
-
-
