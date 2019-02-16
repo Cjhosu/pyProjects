@@ -1,6 +1,6 @@
-from ..forms import DateRangeForm, SignUpForm, AddLocationForm, CreateJournalForm, DateRecordForm, UpdateDateRecordForm, DateRecordNotesForm, UpdatePrecipRecordForm , UpdateShareForm, HomeLocationForm
+from ..forms import AddLocationForm, HomeLocationForm
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from ..models import User, Location, Journal, Date_record, Precip_record, Date_record_note, Share, Current_location
+from ..models import User, Location, Current_location
 from calendar import HTMLCalendar, monthrange
 from django.db.models.functions import Lower
 from datetime import datetime, date, timedelta
