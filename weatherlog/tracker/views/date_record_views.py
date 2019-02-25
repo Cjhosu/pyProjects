@@ -15,43 +15,53 @@ from django.utils.safestring import mark_safe
 from django.views import generic, View
 from itertools import groupby
 
-@login_required
-def CreateDateRecord(request,pk):
-    journref = get_object_or_404(Journal, pk=pk)
-    userref = journref.user
-    date_record_list = Date_record.objects.filter(journal_id= pk).order_by('-log_date')
-    paginator = Paginator(date_record_list, 30)
-    page = request.GET.get('page')
-    records = paginator.get_page(page)
+class DateRecord(LoginRequiredMixin, View):
+
     now = datetime.now()
     year = now.year
     month = now.month
-    if request.method == 'POST':
+    _journref = {}
+    @property
+    def journref(self):
+        return self._journref
+
+    @journref.setter
+    def journref(self, reuqest, pk):
+        self._journref = get_object_or_404(Journal, pk=pk)
+
+    def get(self, request, pk):
+        self.pk = pk
+        journref = self._journref
+        userref = self._journref
+        form = DateRecordForm()
+        return render(request, 'tracker/create_date_record.html'
+                ,{'form' : form, 'userref':userref, 'journref':journref , 'year':self.year, 'month':self.month} )
+
+    def post(self, request, pk):
+        self.pk = pk
+        date_record_list = Date_record.objects.filter(journal_id= pk).order_by('-log_date')
+        paginator = Paginator(date_record_list, 30)
+        page = request.GET.get('page')
+        records = paginator.get_page(page)
         form = DateRecordForm(request.POST)
         if form.is_valid():
             dr = Date_record()
             dr.log_date = form.cleaned_data['log_date']
-            dr.journal_id = journref.pk
+            dr.journal_id = pk
             dr.high_temp = form.cleaned_data['high_temp']
             dr.low_temp = form.cleaned_data['low_temp']
             dr.cloud_cover_type = form.cleaned_data['cloud_cover_type']
             try:
                 dr.save()
             except:
-                    dupe = 'there is a record for that date already'
-                    return render(request,
-                    'tracker/create_date_record.html'
-                    ,{'form':form, 'records':records, 'dupe':dupe, 'journref':journref, 'year':year, 'month':month}
+                dupe = 'there is a record for that date already'
+                return render(request, 'tracker/create_date_record.html'
+                    ,{'form':form,  'journref':self.journref(request, pk), 'year':self.year, 'month':self.month}
                     )
             AddPrecip(request, form, dr.id)
             AddNote(request, form, dr.id)
             return HttpResponseRedirect('/tracker/create_date_record/'+ pk)
-    else:
-        form = DateRecordForm()
-    return render(request,
-            'tracker/create_date_record.html'
-            ,{'form' : form, 'records':records, 'journref':journref, 'userref' :userref, 'year':year, 'month':month}
-            )
+
 
 def AddPrecip(request, form, date_record_id):
     pr = Precip_record()
