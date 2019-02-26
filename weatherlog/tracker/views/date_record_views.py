@@ -20,29 +20,31 @@ class DateRecord(LoginRequiredMixin, View):
     now = datetime.now()
     year = now.year
     month = now.month
-    _journref = {}
-    @property
-    def journref(self):
-        return self._journref
+    dupe = 'there is a record for that date already'
 
-    @journref.setter
-    def journref(self, reuqest, pk):
-        self._journref = get_object_or_404(Journal, pk=pk)
+    def journalscope(self, pk):
+        self.journref = get_object_or_404(Journal, pk=pk)
+        return self.journref
+
+    def recordlist(self, request, pk):
+        self.date_record_list = Date_record.objects.filter(journal_id= pk).order_by('-log_date')
+        self.paginator = Paginator(self.date_record_list, 30)
+        self.page = request.GET.get('page')
+        self.records = self.paginator.get_page(self.page)
+        return  self.records
 
     def get(self, request, pk):
-        self.pk = pk
-        journref = self._journref
-        userref = self._journref
+        journref = self.journalscope(pk)
+        userref = journref.user
+        records = self.recordlist(request, pk)
         form = DateRecordForm()
         return render(request, 'tracker/create_date_record.html'
-                ,{'form' : form, 'userref':userref, 'journref':journref , 'year':self.year, 'month':self.month} )
+        ,{'form':form, 'records':records, 'userref':userref,
+        'journref':journref , 'year':self.year, 'month':self.month} 
+        )
 
     def post(self, request, pk):
-        self.pk = pk
-        date_record_list = Date_record.objects.filter(journal_id= pk).order_by('-log_date')
-        paginator = Paginator(date_record_list, 30)
-        page = request.GET.get('page')
-        records = paginator.get_page(page)
+        journref = self.journalscope(pk)
         form = DateRecordForm(request.POST)
         if form.is_valid():
             dr = Date_record()
@@ -54,10 +56,11 @@ class DateRecord(LoginRequiredMixin, View):
             try:
                 dr.save()
             except:
-                dupe = 'there is a record for that date already'
-                return render(request, 'tracker/create_date_record.html'
-                    ,{'form':form,  'journref':self.journref(request, pk), 'year':self.year, 'month':self.month}
-                    )
+                return render(request, 'tracker/create_date_record.html',
+                {'form':form, 'dupe':self.dupe, 'journref':journref,
+                'records':self.recordlist(request, pk),
+                'userref':journref.user, 'year':self.year, 'month':self.month}
+                )
             AddPrecip(request, form, dr.id)
             AddNote(request, form, dr.id)
             return HttpResponseRedirect('/tracker/create_date_record/'+ pk)
