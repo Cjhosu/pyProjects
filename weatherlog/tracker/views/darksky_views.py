@@ -21,6 +21,8 @@ darkskykey = settings.DARK_SKY_KEY
 
 class CurrentWeather(LoginRequiredMixin, View):
     url = 'https://api.darksky.net/forecast/'+darkskykey+'/'
+    now = datetime.now()
+    month = now.month
     def get(self,request):
         try:
             location = self.get_location(request)
@@ -33,10 +35,11 @@ class CurrentWeather(LoginRequiredMixin, View):
             sunrise = data["weatherdata"]["daily"]["data"][0]["sunriseTime"]
             sunset = data["weatherdata"]["daily"]["data"][0]["sunsetTime"]
             daylight = self.diff_unix(sunset,sunrise)
+            uvindex = self.get_uv_index(request)
             return render(
                 request,
                 'tracker/current_weather.html',
-                context={'location_name':location_name, 'current_temp':current_temp, 'sunrise':self.convert_unix(sunrise), 'sunset':self.convert_unix(sunset), 'daylight':daylight })
+                context={'location_name':location_name, 'current_temp':current_temp, 'sunrise':self.convert_unix(sunrise), 'sunset':self.convert_unix(sunset), 'daylight':daylight, 'uvindex':uvindex, })
         else:
             return redirect(HomeLocation)
 
@@ -47,9 +50,27 @@ class CurrentWeather(LoginRequiredMixin, View):
             loaction = None
         return location
 
+    def is_summer(self, request):
+        if self.month in [5,6,7,8]:
+            return True
+        else:
+            return False
+
+    def get_uv_index(self, request):
+        summer = self.is_summer(request)
+        if summer == True:
+            data=self.call_darksky(request, self.url)
+            uvindex =  data["weatherdata"]["currently"]["uvIndex"]
+            return uvindex
+        else:
+            uvindex = 'UV Index only displayed May - Aug'
+            return uvindex
+
     def call_darksky(self, request, url):
         location = self.location_details(request)
-        response = requests.get(url +location['user_lat']+','+location['user_long']+'?exclude=minutely,hourly,alerts,flags')
+        #response = open("tracker/weather.json").read()
+        #weatherdata = json.loads(response)
+        response = requests.get(url+location['user_lat']+','+location['user_long']+'?exclude=minutely,hourly,alerts,flags')
         weatherdata = response.json()
         return ({'weatherdata':weatherdata, 'location':location})
 
@@ -68,4 +89,3 @@ class CurrentWeather(LoginRequiredMixin, View):
         seconds_diff = (unix_timestamp1 - unix_timestamp2)
         hours_mins_secs =  str(timedelta(seconds = seconds_diff))
         return hours_mins_secs
-
