@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from ...views.darksky_views import CurrentWeather
-from ...models import Location
+from ...models import Darksky_historical_data, Location
 import requests
 from datetime import date, datetime, timedelta
 
@@ -17,17 +17,22 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--location')
 
-    def getLocation(self,current):
-        home_location = Location.objects.get(locality_name = current)
+    def getHistoricalData(self,provided_location):
+        home_location = Location.objects.get(locality_name = provided_location)
         latitude = str(home_location.latitude)
         longitude = str(home_location.longitude)
         response = requests.get(self.url+latitude+','+longitude+','+yest+'?exclude=minutely,currently,hourly,alerts,flags')
         weatherdata = response.json()
         uv_index = weatherdata["daily"]["data"][0]["uvIndex"]
-        return uv_index
-
+        return ({'uv_index':uv_index, 'home_location': home_location})
 
     def handle(self,*args, **options):
-        current = options['location']
-        home_location = self.getLocation(current)
-        print (home_location)
+        provided_location = options['location']
+        historical_data = self.getHistoricalData(provided_location)
+        max_uv_index = historical_data["uv_index"]
+        location_key = historical_data["home_location"]
+        data = Darksky_historical_data()
+        data.max_uv_index = max_uv_index
+        data.log_date = yesterday.date()
+        data.location = location_key
+        data.save()
