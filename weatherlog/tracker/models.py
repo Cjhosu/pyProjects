@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 # Create your models here.
 
 class Location(models.Model):
-    locality_name = models.CharField(max_length=255)
+    locality_name = models.CharField(max_length=256)
     zip = models.CharField(max_length=5)
     longitude = models.FloatField(null=True)
     latitude = models.FloatField(null=True)
