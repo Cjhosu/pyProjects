@@ -19,6 +19,11 @@ class Journal(models.Model):
     def __str__(self):
       return self.description
 
+class Darksky_historical_data(models.Model):
+    log_date = models.DateField(default=None, blank=True, null=True)
+    max_uv_index = models.IntegerField(default=None, blank=True, null=True)
+    location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True)
+
 class Current_location(models.Model):
     user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True)
     location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True)
