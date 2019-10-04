@@ -1,8 +1,6 @@
 import re
 
 with open('sample.csv') as file:
-    keylist = ()
-    datalist = ()
     for line in file:
         if re.match(".*table.*",line):
             key, value = line.split(":")
@@ -17,4 +15,7 @@ with open('sample.csv') as file:
             line = line.strip()
             dlist = line.split(",")
             data = (','.join("'" + item + "'" for item in dlist))
-            print (data)
+            if not line == "":
+                print ("("+ data + "),")
+            else:
+                print('\n' , end="")
