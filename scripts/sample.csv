@@ -1,0 +1,9 @@
+table : users
+columns:,  id : int , name : varchar, created : datetime, is_deleted : boolean
+1,caleb,2019-09-30,false
+2,jp,2019-09-30,true
+
+table : other
+columns:, id : int , description : varchar
+1,the first thing
+2,the other thing
