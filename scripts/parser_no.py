@@ -18,13 +18,16 @@ with open('sample.csv') as file:
             zipped = zip(typelist[1:],dlist)
             data = dict(zipped)
             mylist = []
-            if not line == "":
+            if line != "": 
                 print("(",end="")
                 for k,v in data.items():
                     if k.strip() == "int" or k.strip() == "boolean":
-                        mylist.append(v)
+                        mylist.append(v.strip(';'))
                     else:
-                        mylist.append("'" +v + "'")
-                print(",".join(mylist)+ "),")
+                        mylist.append("'" +v.strip(';') + "'")
+                if not re.match(".*;.*", line):
+                    print(",".join(mylist)+ "),")
+                else:
+                    print(",".join(mylist)+ ")")
             else:
                 print('\n' , end="")
