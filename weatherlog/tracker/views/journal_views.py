@@ -26,9 +26,9 @@ def CreateJournal(request):
           JourMod.locality = form.cleaned_data.get('locality')
           JourMod.description = form.cleaned_data.get('description')
           JourMod.save()
-          return HttpResponseRedirect('/tracker/index')
+          return HttpResponseRedirect('/tracker/')
       else:
-          return HttpResposnseRedirect('/tracker/index')
+          return HttpResposnseRedirect('/tracker/')
     else:
         form = CreateJournalForm()
     return render(request, 'tracker/create_journal.html', {'form' : form})

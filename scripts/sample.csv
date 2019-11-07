@@ -4,7 +4,7 @@ columns:,id:int,name:varchar,created:datetime,is_deleted:boolean,number_things:i
 2,jp,2019-09-30,true,5
 32,ryan,2019-10-02,true,3;
 
-table : other
+table : things
 columns:,id:int,description:varchar
 1,the first thing
 2,the other thing
