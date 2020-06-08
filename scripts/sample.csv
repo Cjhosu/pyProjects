@@ -1,11 +1,13 @@
-table : users
-columns:,id:int,name:varchar,created:datetime,is_deleted:boolean,number_things:int
-1,caleb,2019-09-30,false,4
-2,jp,2019-09-30,true,5
-32,ryan,2019-10-02,true,3;
+table : customers
+columns:,customer_name:char,address_full:varchar,created_at:int,updated_at:int
+Quinten Coldwater,534 Breakbills Dr. Breakbills NY 23465,getdate(),getdate()
+Alice Quinn,978 Ravenna Rd. Mentor OH 44077,getdate(),getdate()
+Elliot Waugh,243 Cottage D. Breakbills NY 23465,getdate(),getdate()
+Julia Wicker,9023 Hedge Dr. Albany NY 23987,getdate(),getdate();
 
-table : things
-columns:,id:int,description:varchar
-1,the first thing
-2,the other thing
-3,another record;
+table : items
+columns:,item_name:varchar,item_type:char,created_at:int,updated_at:int
+specialized roubaix,assembled cycle,getdate(),getdate()
+garmin computer,accessory,getdate(),getdate()
+carbon fork,accessory,getdate(),getdate()
+water bottle cage,accessory,getdate(),getdate();
