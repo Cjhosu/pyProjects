@@ -9,7 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Sum
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render, render_to_response
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.html import conditional_escape as esc
 from django.utils.safestring import mark_safe
 from django.views import generic, View
