@@ -26,9 +26,9 @@ def AddNewItem(request):
         form = AddItemForm(request.POST)
         if form.is_valid():
             itemtype = form.cleaned_data['item_type']
-            if itemtype.type == 'Book':
+            if itemtype.type.lower() == 'book':
                 return HttpResponseRedirect('/catalog/books/add')
-            if itemtype.type == 'Comic':
+            if itemtype.type.lower() == 'comic':
                 return HttpResponseRedirect('/catalog/comics/add')
             else:
                 return HttpResponseRedirect('/catalog/books/')
