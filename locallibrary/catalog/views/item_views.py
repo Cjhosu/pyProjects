@@ -11,12 +11,9 @@ class LoanedItemsByUserListView(LoginRequiredMixin,generic.ListView):
     template_name ='catalog/item_status_list_borrowed_user.html'
     paginate_by = 10
 
-    def get_queryset(self):
-        return Item_status.objects.filter(borrower=self.request.user).order_by('loaned_at')
-
-    def get_context_data(self, **kwargs):
-        context = super(LoanedItemsByUserListView, self).get_context_data(**kwargs)
-        context['Owned_list'] = Item.objects.filter(owned_by=self.request.user, item_type = 1)
+    def get_context_data(self):
+        context = super(LoanedItemsByUserListView, self).get_context_data()
+        context['Borrowed_list'] = Item_status.objects.filter(borrower=self.request.user).exclude(borrower__isnull=True)
         context['Loaned_list'] = Item_status.objects.filter(item__owned_by=self.request.user).exclude(borrower=self.request.user).exclude(borrower__isnull=True)
         context['Other_list'] = Item_status.objects.filter(item__owned_by=self.request.user).exclude(borrower=self.request.user).filter(borrower__isnull=True)
         return context
