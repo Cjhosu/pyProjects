@@ -9,7 +9,7 @@ CLIENT_SECRET = os.environ.get('SPOTIFY_KEY')
 
 AUTH_URL = 'https://accounts.spotify.com/api/token'
 playlist_uris = { 'battle': '6VtMoUfVW9p6yxKmeKPfrc', 'city' : '61ouQPvyL26ty8Yhssz5y2', 'intro' : '6rrIaBgm0lEB6SBE0T5x6d', 'tavern' : '6ll0DqazPBbPEWKtiRCLw1', 'travel' : '5w9YOt0lVo09gMyhyh4Pv2' }
-print('Welcome to the sound board!\n')
+print('\nWelcome to the sound board!\n')
 
 auth_response = requests.post(AUTH_URL, {
     'grant_type' : 'client_credentials',
