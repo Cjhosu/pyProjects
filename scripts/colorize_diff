@@ -1,0 +1,1 @@
+diff -y --suppress-common-lines prodversion.sql p_populate_t_followupschedule_data.sql | colordiff
