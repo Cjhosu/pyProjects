@@ -8,7 +8,7 @@ CLIENT_SECRET = os.environ.get('SPOTIFY_KEY')
 # set this to system and pull from env var
 
 AUTH_URL = 'https://accounts.spotify.com/api/token'
-playlist_uris = { 'battle': '6VtMoUfVW9p6yxKmeKPfrc', 'city' : '61ouQPvyL26ty8Yhssz5y2', 'intro' : '6rrIaBgm0lEB6SBE0T5x6d', 'tavern' : '6ll0DqazPBbPEWKtiRCLw1', 'travel' : '5w9YOt0lVo09gMyhyh4Pv2' }
+playlist_uris = { 'battle': '6VtMoUfVW9p6yxKmeKPfrc', 'caves' : '7I4KwmekYEfA7MGw2HOszk', 'city' : '61ouQPvyL26ty8Yhssz5y2', 'intro' : '6rrIaBgm0lEB6SBE0T5x6d', 'tavern' : '6ll0DqazPBbPEWKtiRCLw1', 'travel' : '5w9YOt0lVo09gMyhyh4Pv2' }
 print('\nWelcome to the sound board!\n')
 
 auth_response = requests.post(AUTH_URL, {
