@@ -1,7 +1,8 @@
+from flask import Flask, redirect, render_template, request, session, url_for
+import os
+import random
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from flask import Flask, request, url_for, session, redirect
-import os
 import time
 
 
@@ -45,15 +46,17 @@ def test():
     return ('TEST')
 
 
-@app.route('/switchTrack')
+@app.route('/switchTrack', methods=['GET', 'POST'])
 def switch_track():
+    if request.method == 'GET':
+        return render_template('index.html')
     try:
         token_info = get_token()
     except Exception:
         print("user not logged in")
         return redirect('/')
-    if 'name' in request.args:
-        name = request.args['name']
+    if request.form.get('playlist_pick'):
+        name = request.form.get('playlist_pick')
         if name in playlist_uris:
             playlist_id = playlist_uris[name]
             sp = spotipy.Spotify(auth=token_info['access_token'])
@@ -62,9 +65,14 @@ def switch_track():
                 if playlist['id'] == playlist_id:
                     items = sp.playlist_items(playlist_id)
                     songs = items['items']
-                    song_uri = songs[0]['track']['uri']
+                    count = len(songs)
+                    if count == 1:
+                        starting = 0
+                    else:
+                        starting = random.randint(0, count - 1)
+                    song_uri = songs[starting]['track']['uri']
                     sp.start_playback(uris=[song_uri])
-                    return ('Switched to ' + song_uri)
+                    return redirect(url_for('switch_track', _external=True))
         else:
             return ('OATH SUCCESSFUL - No matching playlist')
     else:
