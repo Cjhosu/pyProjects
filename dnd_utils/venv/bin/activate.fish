@@ -29,7 +29,7 @@ end
 # unset irrelevant variables
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/Users/cjhosu/repos/pyProjects/dnd_track_manager/venv"
+set -gx VIRTUAL_ENV "/Users/cjhosu/repos/pyProjects/dnd_utils/venv"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH

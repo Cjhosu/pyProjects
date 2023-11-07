@@ -1,4 +1,4 @@
-#!/Users/cjhosu/repos/pyProjects/dnd_track_manager/venv/bin/python3
+#!/Users/cjhosu/repos/pyProjects/dnd_utils/venv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys
