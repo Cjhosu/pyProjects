@@ -5,7 +5,6 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import time
 
-
 app = Flask(__name__)
 
 app.config['SESSION_COOKIE_NAME'] = 'Spotify Cookie'
@@ -16,12 +15,13 @@ CLIENT_ID = '66c04c7baca048e79140bff763e7afdb'
 CLIENT_SECRET = os.environ.get('SPOTIFY_KEY')
 
 playlist_uris = {
+        'ocean': '3EWx9zweYT2VUGu9Gu2Yu0',
         'battle': '6VtMoUfVW9p6yxKmeKPfrc',
         'caves': '7I4KwmekYEfA7MGw2HOszk',
         'city': '61ouQPvyL26ty8Yhssz5y2',
         'intro': '6rrIaBgm0lEB6SBE0T5x6d',
         'tavern': '6ll0DqazPBbPEWKtiRCLw1',
-        'travel': '5w9YOt0lVo09gMyhyh4Pv2',
+        'travel': '0uMR6q4bLDXNjmoM4gy6D5',
         'horror': '6tUoj6X0uf6HxJ6dqZKwnN'
         }
 
@@ -64,14 +64,12 @@ def switch_track():
             for playlist in current_playlists:
                 if playlist['id'] == playlist_id:
                     items = sp.playlist_items(playlist_id)
-                    songs = items['items']
-                    count = len(songs)
+                    count = len(items['items'])
                     if count == 1:
                         starting = 0
                     else:
                         starting = random.randint(0, count - 1)
-                    song_uri = songs[starting]['track']['uri']
-                    sp.start_playback(uris=[song_uri])
+                    sp.start_playback(context_uri='spotify:playlist:'+ playlist_id, offset={"position":starting})
                     return redirect(url_for('switch_track', _external=True))
         else:
             return ('OATH SUCCESSFUL - No matching playlist')
