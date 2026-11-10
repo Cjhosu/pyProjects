@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Plan Production Run - Inventory Tracker{% endblock %}
+{% block content %}
+  <h1>Plan a production run</h1>
+
+  {% if not products %}
+    <p>You need at least one product before you can plan a run. <a href="{{ url_for('products.new_product') }}">Add a product first.</a></p>
+  {% else %}
+  <form method="post">
+    <div class="field">
+      <label for="product_id">Product</label>
+      <select id="product_id" name="product_id" required>
+        <option value="">Select product...</option>
+        {% for product in products %}
+          <option value="{{ product.id }}" {% if form.get('product_id')|string == product.id|string %}selected{% endif %}>
+            {{ product.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label for="planned_date">Planned date</label>
+      <input type="date" id="planned_date" name="planned_date" value="{{ form.get('planned_date', '') }}">
+    </div>
+    <div class="field">
+      <label for="batch_quantity">Batch quantity (1 = one full recipe batch)</label>
+      <input type="number" step="any" id="batch_quantity" name="batch_quantity" value="{{ form.get('batch_quantity', 1) }}" required>
+    </div>
+    <div class="actions">
+      <button class="btn" type="submit">Plan run</button>
+    </div>
+  </form>
+  {% endif %}
+{% endblock %}

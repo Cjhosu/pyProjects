@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Production Run - {{ run.product.name }}{% endblock %}
+{% block content %}
+  <h1>{{ run.product.name }} &mdash; {{ run.status }}</h1>
+  <p>
+    {% if run.status == 'planned' %}
+      Planned date: {{ run.planned_date }}
+    {% else %}
+      Completed date: {{ run.completed_date }}
+    {% endif %}
+    &middot; Batches: {{ run.batch_quantity }}
+    &middot; Units produced: {{ run.units_produced }} {{ run.product.unit_label }}(s)
+  </p>
+
+  <h2>Material requirements</h2>
+  <table>
+    <tr><th>Material</th><th>Needed</th><th>Currently on hand</th></tr>
+    {% for line in run.product.ingredients %}
+      {% set needed = run.batch_quantity * line.quantity_required %}
+      <tr>
+        <td><a href="{{ url_for('materials.detail', material_id=line.material.id) }}">{{ line.material.name }}</a></td>
+        <td>{{ needed }} {{ line.material.unit }}</td>
+        <td class="{{ 'alert-breach' if line.material.quantity_on_hand < needed else '' }}">
+          {{ line.material.quantity_on_hand }} {{ line.material.unit }}
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+
+  {% if run.status == 'planned' %}
+    {% if shortfalls %}
+      <p class="flash flash-warning">
+        Not enough stock to complete this run as-is. You can complete it anyway, which will allow
+        the short materials to go negative.
+      </p>
+      <form method="post" action="{{ url_for('production.complete', run_id=run.id) }}">
+        <input type="hidden" name="force" value="1">
+        <button class="btn btn-danger" type="submit">Complete anyway</button>
+      </form>
+    {% else %}
+      <form method="post" action="{{ url_for('production.complete', run_id=run.id) }}">
+        <button class="btn" type="submit">Mark completed</button>
+      </form>
+    {% endif %}
+  {% endif %}
+{% endblock %}

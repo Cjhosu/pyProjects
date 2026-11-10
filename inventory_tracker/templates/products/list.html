@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Products - Inventory Tracker{% endblock %}
+{% block content %}
+  <h1>Products</h1>
+  <p><a class="btn" href="{{ url_for('products.new_product') }}">Add product</a></p>
+
+  <table>
+    <tr>
+      <th>Name</th><th>On hand</th><th>Yield</th><th>Cost / unit</th>
+      <th>Cost of on hand</th><th>Sale price</th><th>Sale value of on hand</th>
+    </tr>
+    {% for product in products %}
+      <tr>
+        <td><a href="{{ url_for('products.detail', product_id=product.id) }}">{{ product.name }}</a></td>
+        <td>{{ product.quantity_on_hand|round|int }} {{ product.unit_label }}(s)</td>
+        <td>{{ product.yield_quantity|round|int }} {{ product.unit_label }}(s)</td>
+        <td>
+          {% set cost = costs.get(product.id) %}
+          {% if cost is not none %}
+            ${{ "%.2f"|format(cost) }}
+          {% else %}
+            unknown
+          {% endif %}
+        </td>
+        <td>
+          {% set cost_value = cost_values.get(product.id) %}
+          {% if cost_value is not none %}
+            ${{ "%.2f"|format(cost_value) }}
+          {% else %}
+            unknown
+          {% endif %}
+        </td>
+        <td>
+          {% if product.sale_price is not none %}
+            ${{ "%.2f"|format(product.sale_price) }}
+          {% else %}
+            not set
+          {% endif %}
+        </td>
+        <td>
+          {% set sale_value = sale_values.get(product.id) %}
+          {% if sale_value is not none %}
+            ${{ "%.2f"|format(sale_value) }}
+          {% else %}
+            unknown
+          {% endif %}
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="7">No products yet.</td></tr>
+    {% endfor %}
+  </table>
+
+  {% if products %}
+    <p><strong>Total cost of products on hand (materials cost): ${{ "%.2f"|format(total_cost_value) }}</strong></p>
+    <p><strong>Total sale value of products on hand (at sale price): ${{ "%.2f"|format(total_sale_value) }}</strong></p>
+  {% endif %}
+  {% if missing_cost %}
+    <p>
+      Cost total excludes {{ missing_cost|length }} product(s) with unknown material cost:
+      {% for product in missing_cost %}
+        <a href="{{ url_for('products.detail', product_id=product.id) }}">{{ product.name }}</a>{% if not loop.last %}, {% endif %}
+      {% endfor %}
+    </p>
+  {% endif %}
+  {% if missing_sale_price %}
+    <p>
+      Sale value total excludes {{ missing_sale_price|length }} product(s) with no sale price set:
+      {% for product in missing_sale_price %}
+        <a href="{{ url_for('products.detail', product_id=product.id) }}">{{ product.name }}</a>{% if not loop.last %}, {% endif %}
+      {% endfor %}
+    </p>
+  {% endif %}
+{% endblock %}

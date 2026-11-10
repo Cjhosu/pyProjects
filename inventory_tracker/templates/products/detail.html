@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} - Inventory Tracker{% endblock %}
+{% block content %}
+  <h1>{{ product.name }}</h1>
+  {% if product.description %}<p>{{ product.description }}</p>{% endif %}
+  <p>
+    On hand: <strong>{{ "%.2f"|format(product.quantity_on_hand) }} {{ product.unit_label }}(s)</strong>
+    &middot; Yield: {{ product.yield_quantity }} {{ product.unit_label }}(s) per full batch
+  </p>
+  <p>
+    Recipe cost per batch:
+    {% if cost is not none %}${{ "%.2f"|format(cost) }}{% else %}unknown (missing purchase history for an ingredient){% endif %}
+    &middot; Cost per {{ product.unit_label }}:
+    {% if cost_per_unit is not none %}${{ "%.2f"|format(cost_per_unit) }}{% else %}unknown{% endif %}
+    &middot; Cost of on hand:
+    {% if cost_value is not none %}${{ "%.2f"|format(cost_value) }}{% else %}unknown{% endif %}
+  </p>
+  <p>
+    Sale price per {{ product.unit_label }}:
+    {% if product.sale_price is not none %}${{ "%.2f"|format(product.sale_price) }}{% else %}not set{% endif %}
+    &middot; Sale value of on hand:
+    {% if sale_value is not none %}${{ "%.2f"|format(sale_value) }}{% else %}unknown{% endif %}
+  </p>
+  <p>
+    <a class="btn" href="{{ url_for('products.edit_product', product_id=product.id) }}">Edit recipe</a>
+    <form method="post" action="{{ url_for('products.delete_product', product_id=product.id) }}"
+          style="display: inline;"
+          onsubmit="return confirm('Delete this product? This also deletes its recipe and any planned (not yet completed) production runs, and cannot be undone.');">
+      <button class="btn btn-danger" type="submit">Delete</button>
+    </form>
+  </p>
+
+  <h2>Recipe</h2>
+  <table>
+    <tr><th>Material</th><th>Quantity per batch</th></tr>
+    {% for line in product.ingredients %}
+      <tr>
+        <td><a href="{{ url_for('materials.detail', material_id=line.material.id) }}">{{ line.material.name }}</a></td>
+        <td>{{ line.quantity_required }} {{ line.material.unit }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+
+  <h2>Production runs</h2>
+  {% if product.production_runs %}
+    <table>
+      <tr><th>Status</th><th>Date</th><th>Batches</th><th>Units</th></tr>
+      {% for run in product.production_runs|sort(attribute='planned_date', reverse=True) %}
+        <tr>
+          <td><a href="{{ url_for('production.detail', run_id=run.id) }}">{{ run.status }}</a></td>
+          <td>{{ run.planned_date }}</td>
+          <td>{{ run.batch_quantity }}</td>
+          <td>{{ run.units_produced }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p>No production runs for this product yet.</p>
+  {% endif %}
+  <p><a class="btn" href="{{ url_for('production.new_run') }}">Plan a run</a></p>
+{% endblock %}

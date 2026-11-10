@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Materials - Inventory Tracker{% endblock %}
+{% block content %}
+  <h1>Materials</h1>
+  <p>
+    <a class="btn" href="{{ url_for('materials.new_material') }}">Add material</a>
+    <a class="btn" href="{{ url_for('materials.list_types') }}">Manage categories</a>
+  </p>
+
+  {% for type_name, materials in grouped_materials %}
+    <h2>{{ type_name }}</h2>
+    <table>
+      <tr><th>Name</th><th>On hand</th><th>Projected (after planned runs)</th><th>Reorder point</th><th>Current cost/unit</th><th>Value on hand</th></tr>
+      {% for material in materials %}
+        {% set projected_qty = projected.get(material.id, material.quantity_on_hand) %}
+        <tr>
+          <td><a href="{{ url_for('materials.detail', material_id=material.id) }}">{{ material.name }}</a></td>
+          <td class="{{ 'alert-breach' if material.quantity_on_hand <= material.reorder_point else '' }}">
+            {{ "%.2f"|format(material.quantity_on_hand) }} {{ material.unit }}
+          </td>
+          <td class="{{ 'alert-projected' if projected_qty <= material.reorder_point and material.quantity_on_hand > material.reorder_point else ('alert-breach' if projected_qty <= material.reorder_point else '') }}">
+            {{ "%.2f"|format(projected_qty) }} {{ material.unit }}
+          </td>
+          <td>{{ "%.2f"|format(material.reorder_point) }} {{ material.unit }}</td>
+          <td>
+            {% if material.current_unit_cost is not none %}
+              ${{ "%.2f"|format(material.current_unit_cost) }} / {{ material.unit }}
+            {% else %}
+              unknown
+            {% endif %}
+          </td>
+          <td>
+            {% if material.total_value_on_hand is not none %}
+              ${{ "%.2f"|format(material.total_value_on_hand) }}
+            {% else %}
+              unknown
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p>No materials yet.</p>
+  {% endfor %}
+
+  {% if grouped_materials %}
+    <p><strong>Total value on hand (all categories): ${{ "%.2f"|format(total_value) }}</strong></p>
+  {% endif %}
+  {% if missing_cost %}
+    <p>
+      Total excludes {{ missing_cost|length }} material(s) with no purchase history yet:
+      {% for material in missing_cost %}
+        <a href="{{ url_for('materials.detail', material_id=material.id) }}">{{ material.name }}</a>{% if not loop.last %}, {% endif %}
+      {% endfor %}
+    </p>
+  {% endif %}
+{% endblock %}

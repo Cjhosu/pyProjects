@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if material else 'Add' }} Material - Inventory Tracker{% endblock %}
+{% block content %}
+  <h1>{{ 'Edit' if material else 'Add' }} Material</h1>
+
+  <form method="post">
+    <div class="field">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" value="{{ form.get('name', material.name if material else '') }}" required>
+    </div>
+    <div class="field">
+      <label for="unit">Unit (e.g. oz, lb, each)</label>
+      <input type="text" id="unit" name="unit" value="{{ form.get('unit', material.unit if material else '') }}" required>
+    </div>
+    <div class="field">
+      <label for="material_type_id">Category</label>
+      {% set current_type_id = form.get('material_type_id', (material.material_type_id if material else '')) %}
+      <select id="material_type_id" name="material_type_id">
+        <option value="">Uncategorized</option>
+        {% for material_type in material_types %}
+          <option value="{{ material_type.id }}" {% if current_type_id|string == material_type.id|string %}selected{% endif %}>
+            {{ material_type.name }}
+          </option>
+        {% endfor %}
+      </select>
+      <small><a href="{{ url_for('materials.list_types') }}">Manage categories</a></small>
+    </div>
+    <div class="field">
+      <label for="reorder_point">Reorder point</label>
+      <input type="number" step="any" id="reorder_point" name="reorder_point"
+             value="{{ form.get('reorder_point', material.reorder_point if material else 0) }}">
+    </div>
+    {% if not material %}
+      <div class="field">
+        <label for="quantity_on_hand">Starting quantity on hand</label>
+        <input type="number" step="any" id="quantity_on_hand" name="quantity_on_hand"
+               value="{{ form.get('quantity_on_hand', 0) }}">
+      </div>
+    {% endif %}
+    <div class="field">
+      <label for="manual_unit_cost">
+        {% if material %}Cost per unit (manual override){% else %}Cost per unit (optional){% endif %}
+      </label>
+      <input type="number" step="any" id="manual_unit_cost" name="manual_unit_cost"
+             value="{{ form.get('manual_unit_cost', (material.manual_unit_cost if material and material.manual_unit_cost is not none else '')) }}">
+      {% if material %}
+        <small>
+          Leave blank to price this material from its most recent logged purchase
+          {% if material.latest_purchase %}
+            (currently ${{ "%.2f"|format(material.latest_purchase.unit_cost) }} / {{ material.unit }}
+            from {{ material.latest_purchase.purchase_date }}).
+          {% else %}
+            (no purchases logged yet).
+          {% endif %}
+          Set a value here to override that and use it as the current cost instead.
+        </small>
+      {% else %}
+        <small>
+          If you already have some of this material on hand, enter what you paid per {{ 'unit' }}
+          so its value is tracked from the start. You can log a formal purchase later instead.
+        </small>
+      {% endif %}
+    </div>
+    <div class="actions">
+      <button class="btn" type="submit">Save</button>
+    </div>
+  </form>
+{% endblock %}

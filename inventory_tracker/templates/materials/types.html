@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Material Categories - Inventory Tracker{% endblock %}
+{% block content %}
+  <h1>Material categories</h1>
+  <p><a href="{{ url_for('materials.list_materials') }}">&larr; Back to materials</a></p>
+
+  <table>
+    <tr><th>Name</th><th>Materials</th></tr>
+    {% for material_type in material_types %}
+      <tr>
+        <td>{{ material_type.name }}</td>
+        <td>{{ material_type.materials|length }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="2">No categories yet.</td></tr>
+    {% endfor %}
+  </table>
+
+  <h2>Add a category</h2>
+  <form method="post">
+    <div class="field">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" placeholder="e.g. Fragrance Oils" required>
+    </div>
+    <div class="actions">
+      <button class="btn" type="submit">Add category</button>
+    </div>
+  </form>
+{% endblock %}

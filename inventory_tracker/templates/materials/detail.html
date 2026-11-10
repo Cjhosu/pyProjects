@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ material.name }} - Inventory Tracker{% endblock %}
+{% block content %}
+  <h1>{{ material.name }}</h1>
+  <p>
+    Category: {{ material.material_type.name if material.material_type else 'Uncategorized' }}
+  </p>
+  <p>
+    On hand: <strong>{{ material.quantity_on_hand }} {{ material.unit }}</strong>
+    &middot; Reorder point: {{ material.reorder_point }} {{ material.unit }}
+    &middot; Current cost:
+    {% if material.current_unit_cost is not none %}
+      ${{ "%.2f"|format(material.current_unit_cost) }} / {{ material.unit }}
+      {% if material.manual_unit_cost is not none %}(manual override){% endif %}
+    {% else %}
+      unknown (no purchases yet)
+    {% endif %}
+    &middot; Value on hand:
+    {% if material.total_value_on_hand is not none %}
+      ${{ "%.2f"|format(material.total_value_on_hand) }}
+    {% else %}
+      unknown
+    {% endif %}
+  </p>
+  <p>
+    <a class="btn" href="{{ url_for('materials.edit_material', material_id=material.id) }}">Edit</a>
+    <a class="btn" href="{{ url_for('materials.new_purchase', material_id=material.id) }}">Log purchase</a>
+    <form method="post" action="{{ url_for('materials.delete_material', material_id=material.id) }}"
+          style="display: inline;"
+          onsubmit="return confirm('Delete this material? This also deletes its purchase history and cannot be undone.');">
+      <button class="btn btn-danger" type="submit">Delete</button>
+    </form>
+  </p>
+
+  <h2>Purchase history</h2>
+  {% if history %}
+    <table>
+      <tr><th>Date</th><th>Quantity</th><th>Total cost</th><th>Unit cost</th><th>Note</th></tr>
+      {% for purchase in history %}
+        <tr>
+          <td>{{ purchase.purchase_date }}</td>
+          <td>{{ purchase.quantity }} {{ material.unit }}</td>
+          <td>${{ "%.2f"|format(purchase.total_cost) }}</td>
+          <td>${{ "%.2f"|format(purchase.unit_cost) }} / {{ material.unit }}</td>
+          <td>{{ purchase.note or '' }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p>No purchases logged yet.</p>
+  {% endif %}
+{% endblock %}

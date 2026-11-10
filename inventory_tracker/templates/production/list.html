@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Production - Inventory Tracker{% endblock %}
+{% block content %}
+  <h1>Production</h1>
+  <p><a class="btn" href="{{ url_for('production.new_run') }}">Plan a run</a></p>
+
+  <h2>Planned</h2>
+  {% if planned %}
+    <table>
+      <tr><th>Product</th><th>Planned date</th><th>Batches</th><th>Units</th></tr>
+      {% for run in planned %}
+        <tr>
+          <td><a href="{{ url_for('production.detail', run_id=run.id) }}">{{ run.product.name }}</a></td>
+          <td>{{ run.planned_date }}</td>
+          <td>{{ run.batch_quantity }}</td>
+          <td>{{ run.units_produced }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p>No planned runs.</p>
+  {% endif %}
+
+  <h2>Completed</h2>
+  {% if completed %}
+    <table>
+      <tr><th>Product</th><th>Completed date</th><th>Batches</th><th>Units</th></tr>
+      {% for run in completed %}
+        <tr>
+          <td><a href="{{ url_for('production.detail', run_id=run.id) }}">{{ run.product.name }}</a></td>
+          <td>{{ run.completed_date }}</td>
+          <td>{{ run.batch_quantity }}</td>
+          <td>{{ run.units_produced }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p>No completed runs yet.</p>
+  {% endif %}
+{% endblock %}
