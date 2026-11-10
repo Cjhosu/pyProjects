@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if product else 'Add' }} Product - Inventory Tracker{% endblock %}
+{% block content %}
+  <h1>{{ 'Edit' if product else 'Add' }} Product</h1>
+
+  {% if not materials %}
+    <p>You need at least one material before you can create a product. <a href="{{ url_for('materials.new_material') }}">Add a material first.</a></p>
+  {% else %}
+  <form method="post" id="product-form">
+    <div class="field">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" value="{{ form.get('name', product.name if product else '') }}" required>
+    </div>
+    <div class="field">
+      <label for="description">Description (optional)</label>
+      <input type="text" id="description" name="description" value="{{ form.get('description', product.description if product else '') }}">
+    </div>
+    <div class="field">
+      <label for="unit_label">Unit label (e.g. candle, wax melt)</label>
+      <input type="text" id="unit_label" name="unit_label" value="{{ form.get('unit_label', product.unit_label if product else '') }}" required>
+    </div>
+    <div class="field">
+      <label for="yield_quantity">Yield (units produced per full batch)</label>
+      <input type="number" step="any" id="yield_quantity" name="yield_quantity"
+             value="{{ form.get('yield_quantity', product.yield_quantity if product else 1) }}" required>
+    </div>
+    <div class="field">
+      <label for="quantity_on_hand">
+        {% if product %}Quantity on hand{% else %}Starting quantity on hand (optional){% endif %}
+      </label>
+      <input type="number" step="any" id="quantity_on_hand" name="quantity_on_hand"
+             value="{{ form.get('quantity_on_hand', product.quantity_on_hand if product else 0) }}">
+      {% if product %}
+        <small>
+          Completing a production run adds to this automatically. Edit it by hand after a sale
+          to subtract what you sold.
+        </small>
+      {% endif %}
+    </div>
+    <div class="field">
+      <label for="sale_price">Sale price per {{ product.unit_label if product else 'unit' }} (optional)</label>
+      <input type="number" step="any" id="sale_price" name="sale_price"
+             value="{{ form.get('sale_price', (product.sale_price if product and product.sale_price is not none else '')) }}">
+    </div>
+
+    <h2>Recipe ingredients (per full batch)</h2>
+    <div id="ingredient-rows">
+      {% for row in rows %}
+        <div class="ingredient-row">
+          <select name="material_id_{{ loop.index0 }}">
+            <option value="">Select material...</option>
+            {% for material in materials %}
+              <option value="{{ material.id }}" {% if row.material_id|string == material.id|string %}selected{% endif %}>
+                {{ material.name }} ({{ material.unit }})
+              </option>
+            {% endfor %}
+          </select>
+          <input type="number" step="any" placeholder="Quantity" name="quantity_{{ loop.index0 }}" value="{{ row.quantity }}">
+          <button type="button" class="btn btn-danger remove-row">Remove</button>
+        </div>
+      {% endfor %}
+    </div>
+    <button type="button" class="btn" id="add-row">Add ingredient</button>
+
+    <div class="actions">
+      <button class="btn" type="submit">Save</button>
+    </div>
+  </form>
+
+  <template id="row-template">
+    <div class="ingredient-row">
+      <select name="material_id_@@IDX@@">
+        <option value="">Select material...</option>
+        {% for material in materials %}
+          <option value="{{ material.id }}">{{ material.name }} ({{ material.unit }})</option>
+        {% endfor %}
+      </select>
+      <input type="number" step="any" placeholder="Quantity" name="quantity_@@IDX@@">
+      <button type="button" class="btn btn-danger remove-row">Remove</button>
+    </div>
+  </template>
+
+  <script>
+    (function () {
+      var rowsContainer = document.getElementById('ingredient-rows');
+      var addButton = document.getElementById('add-row');
+      var template = document.getElementById('row-template');
+      var nextIndex = {{ rows|length }};
+
+      addButton.addEventListener('click', function () {
+        var html = template.innerHTML.replace(/@@IDX@@/g, nextIndex);
+        var wrapper = document.createElement('div');
+        wrapper.innerHTML = html.trim();
+        rowsContainer.appendChild(wrapper.firstChild);
+        nextIndex += 1;
+      });
+
+      rowsContainer.addEventListener('click', function (event) {
+        if (event.target.classList.contains('remove-row')) {
+          event.target.closest('.ingredient-row').remove();
+        }
+      });
+    })();
+  </script>
+  {% endif %}
+{% endblock %}

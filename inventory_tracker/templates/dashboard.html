@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Inventory Tracker{% endblock %}
+{% block content %}
+  <h1>Dashboard</h1>
+
+  <h2>Low stock now</h2>
+  {% if alerts.today_breaches %}
+    <table>
+      <tr><th>Material</th><th>On hand</th><th>Reorder point</th></tr>
+      {% for material in alerts.today_breaches %}
+        <tr>
+          <td><a href="{{ url_for('materials.detail', material_id=material.id) }}">{{ material.name }}</a></td>
+          <td class="alert-breach">{{ material.quantity_on_hand }} {{ material.unit }}</td>
+          <td>{{ material.reorder_point }} {{ material.unit }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p>Nothing is below its reorder point right now.</p>
+  {% endif %}
+
+  <h2>Projected low stock from planned runs</h2>
+  {% if alerts.projected_breaches %}
+    <table>
+      <tr><th>Material</th><th>Projected</th><th>Reorder point</th><th>From planned runs</th></tr>
+      {% for material, projected_qty, contributors in alerts.projected_breaches %}
+        <tr>
+          <td><a href="{{ url_for('materials.detail', material_id=material.id) }}">{{ material.name }}</a></td>
+          <td class="alert-projected">{{ projected_qty }} {{ material.unit }}</td>
+          <td>{{ material.reorder_point }} {{ material.unit }}</td>
+          <td>
+            {% for run in contributors %}
+              <a href="{{ url_for('production.detail', run_id=run.id) }}">{{ run.product.name }} ({{ run.planned_date }})</a>{% if not loop.last %}, {% endif %}
+            {% endfor %}
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p>No planned runs would push a material below its reorder point.</p>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Log Purchase - {{ material.name }}{% endblock %}
+{% block content %}
+  <h1>Log purchase: {{ material.name }}</h1>
+
+  <form method="post">
+    <div class="field">
+      <label for="purchase_date">Purchase date</label>
+      <input type="date" id="purchase_date" name="purchase_date" value="{{ form.get('purchase_date', '') }}">
+    </div>
+    <div class="field">
+      <label for="quantity">Quantity ({{ material.unit }})</label>
+      <input type="number" step="any" id="quantity" name="quantity" value="{{ form.get('quantity', '') }}" required>
+    </div>
+    <div class="field">
+      <label for="total_cost">Total cost ($)</label>
+      <input type="number" step="any" id="total_cost" name="total_cost" value="{{ form.get('total_cost', '') }}" required>
+    </div>
+    <div class="field">
+      <label for="note">Note (optional)</label>
+      <input type="text" id="note" name="note" value="{{ form.get('note', '') }}">
+    </div>
+    <div class="actions">
+      <button class="btn" type="submit">Save purchase</button>
+    </div>
+  </form>
+{% endblock %}
